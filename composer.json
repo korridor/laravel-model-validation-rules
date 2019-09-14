@@ -1,0 +1,49 @@
+{
+    "name": "korridor/laravel-model-validation-rules",
+    "description": "A laravel validation rule that uses eloquent to validate if a model exists",
+    "keywords": ["validation", "laravel", "rule", "model", "exist", "eloquent"],
+    "homepage": "https://github.com/korridor/laravel-model-validation-rules",
+    "authors": [
+        {
+            "name": "korridor",
+            "email": "26689068+korridor@users.noreply.github.com"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "php": "7.*",
+        "illuminate/support": "^5.8|^6.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^3.5|^4.0",
+        "phpunit/phpunit": "^7.0|^8.0",
+        "friendsofphp/php-cs-fixer": "^2.15",
+        "squizlabs/php_codesniffer": "^3.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Korridor\\LaravelModelValidationRules\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Korridor\\LaravelModelValidationRules\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
+        "fix": "./vendor/bin/php-cs-fixer fix",
+        "lint": "./vendor/bin/phpcs --error-severity=1 --warning-severity=8 --extensions=php"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Korridor\\LaravelModelValidationRules\\ModelValidationServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
