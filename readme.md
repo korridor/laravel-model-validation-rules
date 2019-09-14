@@ -2,7 +2,9 @@
 
 ## Installation
 
-`composer require korridor/laravel-model-validation-rules`
+```bash
+composer require korridor/laravel-model-validation-rules
+```
 
 ## Usage
 
@@ -30,13 +32,17 @@ public function rules()
 
 ### Testing
 
-`composer test`
-`composer test-coverage`
+```bash
+composer test
+composer test-coverage
+```
 
-### Codeformatting
+### Codeformatting/Linting
 
-`composer fix`
-`composer lint`
+```bash
+composer fix
+composer lint
+```
 
 ## License
 
