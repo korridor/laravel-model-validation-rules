@@ -80,10 +80,10 @@ class ExistEloquent implements Rule
      */
     public function message(): string
     {
-        return trans('validation.exist_model', [
-            'attribute' => $this->attribute,
-            'model' => class_basename($this->model),
-            'value' => $this->value,
-        ]);
+		return trans('modelValidationRules::validation.exist_model', [
+			'attribute' => $this->attribute,
+			'model' => class_basename($this->model),
+			'value' => $this->value,
+		]);
     }
 }

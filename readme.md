@@ -6,6 +6,10 @@
 composer require korridor/laravel-model-validation-rules
 ```
 
+```bash
+php artisan vendor:publish --provider="Korridor\LaravelModelValidationRules\ModelValidationServiceProvider"
+```
+
 ## Usage
 
 ```php
