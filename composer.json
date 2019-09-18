@@ -44,9 +44,6 @@
         }
     },
     "config": {
-        "sort-packages": true,
-        "platform": {
-            "php": "7.1"
-        }
+        "sort-packages": true
     }
 }
