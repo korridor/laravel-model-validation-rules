@@ -3,8 +3,8 @@
 namespace Korridor\LaravelModelValidationRules\Rules;
 
 use Closure;
-use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Validation\Rule;
 
 class ExistsEloquent implements Rule
 {
@@ -99,7 +99,7 @@ class ExistsEloquent implements Rule
      * @param Closure $builderClosure
      * @return $this
      */
-    public function query(Closure $builderClosure): ExistsEloquent
+    public function query(Closure $builderClosure): self
     {
         $this->setBuilderClosure($builderClosure);
 

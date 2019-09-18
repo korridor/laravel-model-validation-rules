@@ -3,8 +3,8 @@
 namespace Korridor\LaravelModelValidationRules\Rules;
 
 use Closure;
-use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Validation\Rule;
 
 class UniqueEloquent implements Rule
 {
@@ -110,7 +110,7 @@ class UniqueEloquent implements Rule
      * @param Closure $builderClosure
      * @return $this
      */
-    public function query(Closure $builderClosure): UniqueEloquent
+    public function query(Closure $builderClosure): self
     {
         $this->setBuilderClosure($builderClosure);
 
@@ -132,7 +132,7 @@ class UniqueEloquent implements Rule
      * @param string|null $column
      * @return UniqueEloquent
      */
-    public function ignore($id, ?string $column = null): UniqueEloquent
+    public function ignore($id, ?string $column = null): self
     {
         $this->setIgnore($id, $column);
 
