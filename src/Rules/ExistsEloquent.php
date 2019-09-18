@@ -3,10 +3,10 @@
 namespace Korridor\LaravelModelValidationRules\Rules;
 
 use Closure;
-use Eloquent;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Validation\Rule;
 
-class ExistEloquent implements Rule
+class ExistsEloquent implements Rule
 {
     /**
      * @var string
@@ -44,7 +44,7 @@ class ExistEloquent implements Rule
     {
         $this->model = $model;
         $this->key = $key;
-        $this->builderClosure = $builderClosure;
+        $this->setBuilderClosure($builderClosure);
     }
 
     /**
@@ -58,10 +58,10 @@ class ExistEloquent implements Rule
     {
         $this->attribute = $attribute;
         $this->value = $value;
-        /** @var Eloquent $builder */
+        /** @var Model $builder */
         $builder = new $this->model();
         if (null === $this->key) {
-            $builder = $builder->where($builder->getKeyName(), $value);
+            $builder = $builder->where((new $this->model())->getKeyName(), $value);
         } else {
             $builder = $builder->where($this->key, $value);
         }
@@ -80,10 +80,29 @@ class ExistEloquent implements Rule
      */
     public function message(): string
     {
-		return trans('modelValidationRules::validation.exist_model', [
-			'attribute' => $this->attribute,
-			'model' => class_basename($this->model),
-			'value' => $this->value,
-		]);
+        return trans('modelValidationRules::validation.exists_model', [
+            'attribute' => $this->attribute,
+            'model' => class_basename($this->model),
+            'value' => $this->value,
+        ]);
+    }
+
+    /**
+     * @param Closure|null $builderClosure
+     */
+    public function setBuilderClosure(?Closure $builderClosure)
+    {
+        $this->builderClosure = $builderClosure;
+    }
+
+    /**
+     * @param Closure $builderClosure
+     * @return $this
+     */
+    public function query(Closure $builderClosure): self
+    {
+        $this->setBuilderClosure($builderClosure);
+
+        return $this;
     }
 }

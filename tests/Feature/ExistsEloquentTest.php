@@ -2,16 +2,16 @@
 
 namespace Korridor\LaravelModelValidationRules\Tests\Feature;
 
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Korridor\LaravelModelValidationRules\Rules\ExistEloquent;
 use Korridor\LaravelModelValidationRules\Tests\TestCase;
+use Korridor\LaravelModelValidationRules\Rules\ExistsEloquent;
 use Korridor\LaravelModelValidationRules\Tests\TestEnvironment\Models\Fact;
 use Korridor\LaravelModelValidationRules\Tests\TestEnvironment\Models\User;
-use Lang;
-use Str;
 
-class ExistEloquentTest extends TestCase
+class ExistsEloquentTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -21,13 +21,13 @@ class ExistEloquentTest extends TestCase
 
     public function testThatValidationFailsIfEntryDoesNotExistInDatabase()
     {
-        $rule = new ExistEloquent(User::class);
+        $rule = new ExistsEloquent(User::class);
         $this->assertFalse($rule->passes('id', 1));
     }
 
     public function testThatValidationFailsIfEntryIsSoftdeleted()
     {
-        $rule = new ExistEloquent(User::class);
+        $rule = new ExistsEloquent(User::class);
         $user = User::create([
             'id' => 1,
             'name' => 'Testname',
@@ -41,9 +41,9 @@ class ExistEloquentTest extends TestCase
         $this->assertCount(0, User::all());
     }
 
-    public function testThatValidationFailsIfEntryWithCorrectAttributeExists()
+    public function testThatValidationPassesIfEntryWithCorrectAttributeExists()
     {
-        $rule = new ExistEloquent(User::class);
+        $rule = new ExistsEloquent(User::class);
         User::create([
             'id' => 2,
             'name' => 'Testname',
@@ -61,13 +61,13 @@ class ExistEloquentTest extends TestCase
 
     public function testThatValidationFailsIfEntryDoesNotExistInDatabaseUsingOtherAttribute()
     {
-        $rule = new ExistEloquent(User::class, 'other_id');
+        $rule = new ExistsEloquent(User::class, 'other_id');
         $this->assertFalse($rule->passes('id', 1));
     }
 
     public function testThatValidationFailsIfEntryIsSoftdeletedUsingOtherAttribute()
     {
-        $rule = new ExistEloquent(User::class, 'other_id');
+        $rule = new ExistsEloquent(User::class, 'other_id');
         $user = User::create([
             'id' => 1,
             'other_id' => 3,
@@ -82,9 +82,9 @@ class ExistEloquentTest extends TestCase
         $this->assertCount(0, User::all());
     }
 
-    public function testThatValidationFailsIfEntryWithCorrectAttributeExistsUsingOtherAttribute()
+    public function testThatValidationPassesIfEntryWithCorrectAttributeExistsUsingOtherAttribute()
     {
-        $rule = new ExistEloquent(User::class, 'other_id');
+        $rule = new ExistsEloquent(User::class, 'other_id');
         User::create([
             'id' => 2,
             'other_id' => 4,
@@ -102,9 +102,35 @@ class ExistEloquentTest extends TestCase
      * Tests with builder closure
      */
 
-    public function testThatValidationPassesIfRuleChecksThatFactExistsAndBelongsToUser()
+    public function testThatValidationPassesIfRuleChecksThatFactExistsAndBelongsToUserUsingConstructor()
     {
-        $rule = new ExistEloquent(Fact::class, null, function (Builder $builder) {
+        $rule = new ExistsEloquent(Fact::class, null, function (Builder $builder) {
+            return $builder->where('user_id', 6);
+        });
+        User::create([
+            'id' => 6,
+            'other_id' => null,
+            'name' => 'Testname',
+            'email' => 'name@test.com',
+            'password' => bcrypt('secret'),
+            'remember_token' => Str::random(10),
+        ]);
+        Fact::create([
+            'id' => 1,
+            'user_id' => 6,
+            'type' => 'type1',
+            'description' => 'Long desc',
+        ]);
+        $this->assertTrue($rule->passes('id', 1));
+        $this->assertCount(1, User::withTrashed()->get());
+        $this->assertCount(1, User::all());
+        $this->assertCount(1, Fact::withTrashed()->get());
+        $this->assertCount(1, Fact::all());
+    }
+
+    public function testThatValidationPassesIfRuleChecksThatFactExistsAndBelongsToUserUsingFunction()
+    {
+        $rule = (new ExistsEloquent(Fact::class))->query(function (Builder $builder) {
             return $builder->where('user_id', 6);
         });
         User::create([
@@ -135,9 +161,9 @@ class ExistEloquentTest extends TestCase
     public function testThatValidationParametersAreWorkingCorrectly()
     {
         Lang::addLines([
-            'validation.exist_model' => ':attribute :model :value',
-        ], Lang::getLocale());
-        $rule = new ExistEloquent(User::class);
+            'validation.exists_model' => ':attribute :model :value',
+        ], Lang::getLocale(), 'modelValidationRules');
+        $rule = new ExistsEloquent(User::class);
         User::create([
             'id' => 2,
             'name' => 'Testname',
