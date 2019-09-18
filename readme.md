@@ -5,12 +5,13 @@
 [![TravisCI](https://img.shields.io/travis/korridor/laravel-model-validation-rules?style=flat-square)](https://travis-ci.org/korridor/laravel-model-validation-rules)
 [![StyleCI](https://styleci.io/repos/208495858/shield)](https://styleci.io/repos/208495858)
 
-This package is an alternative to the Laravel built-in validation rules `exist` and `unique`.
-This has the following advantages:
+This package is an alternative to the Laravel built-in validation rules `exists` and `unique`.
+It uses Eloquent models instead of directly querying the database.
 
- - It uses existing models instead of directly querying the database.
- - The rule can be easily extended with the Eloquent builder.
- - Softdeletes are working
+**Advantages**
+ - The rule can be easily extended with the Eloquent builder. (scopes etc.)
+ - Softdeletes are working out of the box.
+ - Logic implemented into the models work in the validation as well. (multi tenancy system, etc.)
 
 ## Installation
 
@@ -29,11 +30,14 @@ of the package to the `resources/lang/vendor/modelValidationRules` folder.
 php artisan vendor:publish --provider="Korridor\LaravelModelValidationRules\ModelValidationServiceProvider"
 ```
 
-## Rules
+### Requirements
 
-### ExistEloquent
+This package is tested for the following Laravel versions:
 
-### UniqueEloquent
+ - 6.0
+ - 5.8
+ - 5.7 (stable only)
+ - 5.6 (stable only)
 
 ## Usage examples
 
@@ -107,4 +111,4 @@ project [laravel-validation-rules](https://github.com/spatie/laravel-validation-
 
 ## License
 
-The MIT License (MIT). Please see [license file](license.md) for more information.
+This package is licensed under the MIT License (MIT). Please see [license file](license.md) for more information.
