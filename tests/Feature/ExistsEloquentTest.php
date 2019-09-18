@@ -128,31 +128,31 @@ class ExistsEloquentTest extends TestCase
         $this->assertCount(1, Fact::all());
     }
 
-	public function testThatValidationPassesIfRuleChecksThatFactExistsAndBelongsToUserUsingFunction()
-	{
-		$rule = (new ExistsEloquent(Fact::class))->query(function (Builder $builder) {
-			return $builder->where('user_id', 6);
-		});
-		User::create([
-			'id' => 6,
-			'other_id' => null,
-			'name' => 'Testname',
-			'email' => 'name@test.com',
-			'password' => bcrypt('secret'),
-			'remember_token' => Str::random(10),
-		]);
-		Fact::create([
-			'id' => 1,
-			'user_id' => 6,
-			'type' => 'type1',
-			'description' => 'Long desc',
-		]);
-		$this->assertTrue($rule->passes('id', 1));
-		$this->assertCount(1, User::withTrashed()->get());
-		$this->assertCount(1, User::all());
-		$this->assertCount(1, Fact::withTrashed()->get());
-		$this->assertCount(1, Fact::all());
-	}
+    public function testThatValidationPassesIfRuleChecksThatFactExistsAndBelongsToUserUsingFunction()
+    {
+        $rule = (new ExistsEloquent(Fact::class))->query(function (Builder $builder) {
+            return $builder->where('user_id', 6);
+        });
+        User::create([
+            'id' => 6,
+            'other_id' => null,
+            'name' => 'Testname',
+            'email' => 'name@test.com',
+            'password' => bcrypt('secret'),
+            'remember_token' => Str::random(10),
+        ]);
+        Fact::create([
+            'id' => 1,
+            'user_id' => 6,
+            'type' => 'type1',
+            'description' => 'Long desc',
+        ]);
+        $this->assertTrue($rule->passes('id', 1));
+        $this->assertCount(1, User::withTrashed()->get());
+        $this->assertCount(1, User::all());
+        $this->assertCount(1, Fact::withTrashed()->get());
+        $this->assertCount(1, Fact::all());
+    }
 
     /*
      * Test language support

@@ -12,7 +12,6 @@ use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
 {
-
     public function setUp(): void
     {
         parent::setUp();
@@ -22,10 +21,10 @@ abstract class TestCase extends Orchestra
         $this->app->make(EloquentFactory::class)->load(__DIR__.'/TestClasses/Factories');
     }
 
-	/**
-	 * @param \Illuminate\Foundation\Application $app
-	 * @return array
-	 */
+    /**
+     * @param \Illuminate\Foundation\Application $app
+     * @return array
+     */
     protected function getPackageProviders($app)
     {
         return [
