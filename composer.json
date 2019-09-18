@@ -12,10 +12,10 @@
     "license": "MIT",
     "require": {
         "php": "^7.1|^7.2|^7.3",
-        "illuminate/support": "^5.7|^5.8|^6.0"
+        "illuminate/support": "^5.6|^5.7|^5.8|^6.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^3.7|^3.8|^4.0",
+        "orchestra/testbench": "^3.6|^3.7|^3.8|^4.0",
         "phpunit/phpunit": "^7.0|^8.0",
         "friendsofphp/php-cs-fixer": "^2.15",
         "squizlabs/php_codesniffer": "^3.4"
