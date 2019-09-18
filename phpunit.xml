@@ -11,7 +11,7 @@
          stopOnFailure="false">
     <testsuites>
         <testsuite name="Feature">
-            <directory>tests</directory>
+            <directory>tests/Feature</directory>
         </testsuite>
     </testsuites>
     <filter>

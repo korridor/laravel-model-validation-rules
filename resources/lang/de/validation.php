@@ -1,5 +1,6 @@
 <?php
 
 return [
-    'exist_model' => 'Die Ressource existiert nicht.'
+    'exists_model' => 'Die Ressource existiert nicht.',
+	'unique_model' => 'Die Ressource existiert bereits.',
 ];
