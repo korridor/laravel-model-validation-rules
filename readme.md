@@ -44,6 +44,9 @@ This package is tested for the following Laravel versions:
 **PostStoreRequest**
 
 ```php
+use Korridor\LaravelModelValidationRules\Rules\UniqueEloquent;
+use Korridor\LaravelModelValidationRules\Rules\ExistsEloquent;
+// ...
 public function rules()
 {
     $postId = $this->post->id;
@@ -66,6 +69,9 @@ public function rules()
 **PostUpdateRequest**
 
 ```php
+use Korridor\LaravelModelValidationRules\Rules\UniqueEloquent;
+use Korridor\LaravelModelValidationRules\Rules\ExistsEloquent;
+// ...
 public function rules()
 {
     $postId = $this->post->id;
