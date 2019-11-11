@@ -57,7 +57,7 @@ public function rules()
         'content' => ['string'],
         'comments.*.id' => [
             'nullable',
-            new ExistEloquent(Comment::class, null, function (Builder $builder) use ($postId) {
+            new ExistsEloquent(Comment::class, null, function (Builder $builder) use ($postId) {
                 return $builder->where('post_id', $postId);
             }),
         ],
@@ -77,13 +77,13 @@ public function rules()
     $postId = $this->post->id;
     
     return [
-        'id' => [new ExistEloquent(Post::class)],
+        'id' => [new ExistsEloquent(Post::class)],
         'username' => [new UniqueEloquent(User::class, 'username')->ignore($postId)],
         'title' => ['string'],
         'content' => ['string'],
         'comments.*.id' => [
             'nullable',
-            new ExistEloquent(Comment::class, null, function (Builder $builder) use ($postId) {
+            new ExistsEloquent(Comment::class, null, function (Builder $builder) use ($postId) {
                 return $builder->where('post_id', $postId);
             }),
         ],
