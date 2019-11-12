@@ -2,13 +2,13 @@
 
 namespace Korridor\LaravelModelValidationRules\Tests;
 
-use Illuminate\Events\Dispatcher;
 use Illuminate\Container\Container;
 use Illuminate\Database\Capsule\Manager;
-use Illuminate\Database\Schema\Blueprint;
-use Orchestra\Testbench\TestCase as Orchestra;
 use Illuminate\Database\Eloquent\Factory as EloquentFactory;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Events\Dispatcher;
 use Korridor\LaravelModelValidationRules\ModelValidationServiceProvider;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
 {

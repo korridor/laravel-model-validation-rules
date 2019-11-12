@@ -3,8 +3,8 @@
 namespace Korridor\LaravelModelValidationRules\Rules;
 
 use Closure;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Database\Eloquent\Model;
 
 class UniqueEloquent implements Rule
 {
