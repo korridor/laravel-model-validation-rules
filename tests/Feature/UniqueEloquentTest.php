@@ -2,12 +2,12 @@
 
 namespace Korridor\LaravelModelValidationRules\Tests\Feature;
 
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Korridor\LaravelModelValidationRules\Tests\TestCase;
+use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Str;
 use Korridor\LaravelModelValidationRules\Rules\UniqueEloquent;
+use Korridor\LaravelModelValidationRules\Tests\TestCase;
 use Korridor\LaravelModelValidationRules\Tests\TestEnvironment\Models\Fact;
 use Korridor\LaravelModelValidationRules\Tests\TestEnvironment\Models\User;
 
