@@ -3,6 +3,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/korridor/laravel-model-validation-rules?style=flat-square)](https://packagist.org/packages/korridor/laravel-model-validation-rules)
 [![License](https://img.shields.io/packagist/l/korridor/laravel-model-validation-rules?style=flat-square)](license.md)
 [![TravisCI](https://img.shields.io/travis/korridor/laravel-model-validation-rules?style=flat-square)](https://travis-ci.org/korridor/laravel-model-validation-rules)
+![Codecov](https://img.shields.io/codecov/c/github/korridor/laravel-model-validation-rules?style=flat-square)
 [![StyleCI](https://styleci.io/repos/208495858/shield)](https://styleci.io/repos/208495858)
 
 This package is an alternative to the Laravel built-in validation rules `exists` and `unique`.
@@ -34,10 +35,11 @@ php artisan vendor:publish --provider="Korridor\LaravelModelValidationRules\Mode
 
 This package is tested for the following Laravel versions:
 
- - 6.0
- - 5.8
- - 5.7 (stable only)
- - 5.6 (stable only)
+ - 7.*
+ - 6.*
+ - 5.8.*
+ - 5.7.* (stable only)
+ - 5.6.* (stable only)
 
 ## Usage examples
 

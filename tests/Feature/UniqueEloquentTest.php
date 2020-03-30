@@ -201,9 +201,9 @@ class UniqueEloquentTest extends TestCase
         $this->assertTrue($rule->passes('id', 1));
     }
 
-    public function testIgnoringEntryWithGivenIdColum()
+    public function testIgnoringEntryWithGivenIdColumn()
     {
-        $rule = (new UniqueEloquent(User::class))->ignore('name1@test.com', 'email');
+        $rule = (new UniqueEloquent(User::class, 'email'))->ignore('name1@test.com', 'email');
         User::create([
             'id' => 1,
             'other_id' => null,
@@ -220,6 +220,6 @@ class UniqueEloquentTest extends TestCase
             'password' => bcrypt('secret'),
             'remember_token' => Str::random(10),
         ]);
-        $this->assertTrue($rule->passes('id', 'name1@test.com'));
+        $this->assertTrue($rule->passes('email', 'name1@test.com'));
     }
 }

@@ -4,6 +4,7 @@ namespace Korridor\LaravelModelValidationRules\Rules;
 
 use Closure;
 use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class ExistsEloquent implements Rule
@@ -58,10 +59,11 @@ class ExistsEloquent implements Rule
     {
         $this->attribute = $attribute;
         $this->value = $value;
-        /** @var Model $builder */
+        /** @var Model|Builder $builder */
         $builder = new $this->model();
+        $modelKeyName = $builder->getKeyName();
         if (null === $this->key) {
-            $builder = $builder->where((new $this->model())->getKeyName(), $value);
+            $builder = $builder->where($modelKeyName, $value);
         } else {
             $builder = $builder->where($this->key, $value);
         }
