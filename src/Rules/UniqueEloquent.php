@@ -4,6 +4,7 @@ namespace Korridor\LaravelModelValidationRules\Rules;
 
 use Closure;
 use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class UniqueEloquent implements Rule
@@ -67,16 +68,18 @@ class UniqueEloquent implements Rule
     {
         $this->attribute = $attribute;
         $this->value = $value;
-        /** @var Model $builder */
+        /** @var Model|Builder $builder */
         $builder = new $this->model();
-        $builder = $builder->where(null === $this->key ? (new $this->model())->getKeyName() : $this->key, $value);
+        $modelKeyName = $builder->getKeyName();
+        $builder = $builder->where(null === $this->key ?$modelKeyName : $this->key, $value);
         if (null !== $this->builderClosure) {
             $builderClosure = $this->builderClosure;
             $builder = $builderClosure($builder);
         }
         if (null !== $this->ignoreId) {
-            $builder = $builder->whereNot(
-                null === $this->ignoreColumn ? (new $this->model())->getKeyName() : $this->ignoreColumn,
+            $builder = $builder->where(
+                null === $this->ignoreColumn ? $modelKeyName : $this->ignoreColumn,
+                '!=',
                 $this->ignoreId
             );
         }
