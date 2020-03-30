@@ -71,7 +71,7 @@ class UniqueEloquent implements Rule
         /** @var Model|Builder $builder */
         $builder = new $this->model();
         $modelKeyName = $builder->getKeyName();
-        $builder = $builder->where(null === $this->key ?$modelKeyName : $this->key, $value);
+        $builder = $builder->where(null === $this->key ? $modelKeyName : $this->key, $value);
         if (null !== $this->builderClosure) {
             $builderClosure = $this->builderClosure;
             $builder = $builderClosure($builder);
