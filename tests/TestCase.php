@@ -4,9 +4,9 @@ namespace Korridor\LaravelModelValidationRules\Tests;
 
 use Illuminate\Container\Container;
 use Illuminate\Database\Capsule\Manager;
-use Illuminate\Database\Eloquent\Factory as EloquentFactory;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Events\Dispatcher;
+use Illuminate\Foundation\Application;
 use Korridor\LaravelModelValidationRules\ModelValidationServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
@@ -17,12 +17,10 @@ abstract class TestCase extends Orchestra
         parent::setUp();
 
         $this->setUpDatabase();
-
-        $this->app->make(EloquentFactory::class)->load(__DIR__.'/TestClasses/Factories');
     }
 
     /**
-     * @param \Illuminate\Foundation\Application $app
+     * @param Application $app
      * @return array
      */
     protected function getPackageProviders($app)
