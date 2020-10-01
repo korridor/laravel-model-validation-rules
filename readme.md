@@ -81,7 +81,7 @@ public function rules()
     
     return [
         'id' => [new ExistsEloquent(Post::class)],
-        'username' => [new UniqueEloquent(User::class, 'username')->ignore($postId)],
+        'username' => [(new UniqueEloquent(User::class, 'username'))->ignore($postId)],
         'title' => ['string'],
         'content' => ['string'],
         'comments.*.id' => [
