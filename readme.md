@@ -35,12 +35,10 @@ php artisan vendor:publish --provider="Korridor\LaravelModelValidationRules\Mode
 
 This package is tested for the following Laravel versions:
 
- - 8.*
- - 7.*
- - 6.*
- - 5.8.*
- - 5.7.* (stable only)
- - 5.6.* (stable only)
+ - 8.* (PHP 7.3, 7.4, 8.0)
+ - 7.* (PHP 7.2, 7.3, 7.4, 8.0)
+ - 6.* (PHP 7.2, 7.4, 8.0)
+ - 5.8.* (PHP 7.1, 7.4)
 
 ## Usage examples
 

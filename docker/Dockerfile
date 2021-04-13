@@ -1,4 +1,4 @@
-FROM php:7.4-cli
+FROM php:8.0-cli
 
 RUN apt-get update && apt-get install -y \
     zlib1g-dev \
@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN docker-php-ext-install zip
 
-RUN pecl install xdebug-2.8.1 \
+RUN pecl install xdebug-3.0.4 \
     && docker-php-ext-enable xdebug
 
 # Install composer and add its bin to the PATH.
