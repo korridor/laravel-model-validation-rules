@@ -12,14 +12,14 @@ class ModelValidationServiceProvider extends ServiceProvider
     /**
      * Register services.
      */
-    public function register()
+    public function register(): void
     {
     }
 
     /**
      * Bootstrap services.
      */
-    public function boot()
+    public function boot(): void
     {
         $this->publishes([
             __DIR__.'/../resources/lang' => resource_path('lang/vendor/modelValidationRules'),

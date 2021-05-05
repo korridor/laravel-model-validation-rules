@@ -45,6 +45,18 @@ class UniqueEloquent implements Rule
     private $ignoreColumn;
 
     /**
+     * Custom validation message.
+     *
+     * @var string|null
+     */
+    private $message = null;
+
+    /**
+     * @var bool|null
+     */
+    private $messageTranslated = null;
+
+    /**
      * UniqueEloquent constructor.
      * @param string $model
      * @param string|null $key
@@ -88,17 +100,75 @@ class UniqueEloquent implements Rule
     }
 
     /**
+     * Set a custom validation message.
+     *
+     * @param  string  $message
+     * @param  bool  $translated
+     */
+    public function setMessage(string $message, bool $translated): void
+    {
+        $this->message = $message;
+        $this->messageTranslated = $translated;
+    }
+
+    /**
+     * Set a custom validation message.
+     *
+     * @param  string  $message
+     *
+     * @return $this
+     */
+    public function withMessage(string $message): self
+    {
+        $this->setMessage($message, false);
+
+        return $this;
+    }
+
+    /**
+     * Set a translated custom validation message.
+     *
+     * @param  string  $translationKey
+     *
+     * @return $this
+     */
+    public function withCustomTranslation(string $translationKey): self
+    {
+        $this->setMessage($translationKey, true);
+
+        return $this;
+    }
+
+    /**
      * Get the validation error message.
      *
      * @return string|array
      */
     public function message(): string
     {
-        return trans('modelValidationRules::validation.unique_model', [
-            'attribute' => $this->attribute,
-            'model' => class_basename($this->model),
-            'value' => $this->value,
-        ]);
+        if ($this->message !== null) {
+            if ($this->messageTranslated) {
+                return trans(
+                    $this->message,
+                    [
+                        'attribute' => $this->attribute,
+                        'model' => strtolower(class_basename($this->model)),
+                        'value' => $this->value,
+                    ]
+                );
+            } else {
+                return $this->message;
+            }
+        } else {
+            return trans(
+                'modelValidationRules::validation.unique_model',
+                [
+                    'attribute' => $this->attribute,
+                    'model' => strtolower(class_basename($this->model)),
+                    'value' => $this->value,
+                ]
+            );
+        }
     }
 
     /**

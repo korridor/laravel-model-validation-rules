@@ -22,15 +22,6 @@ You can install the package via composer with following command:
 composer require korridor/laravel-model-validation-rules
 ```
 
-### Translation
-
-If you want to customize the translations of the validation errors you can publish the translations 
-of the package to the `resources/lang/vendor/modelValidationRules` folder.
-
-```bash
-php artisan vendor:publish --provider="Korridor\LaravelModelValidationRules\ModelValidationServiceProvider"
-```
-
 ### Requirements
 
 This package is tested for the following Laravel versions:
@@ -48,7 +39,7 @@ This package is tested for the following Laravel versions:
 use Korridor\LaravelModelValidationRules\Rules\UniqueEloquent;
 use Korridor\LaravelModelValidationRules\Rules\ExistsEloquent;
 // ...
-public function rules()
+public function rules(): array
 {
     $postId = $this->post->id;
     
@@ -73,7 +64,7 @@ public function rules()
 use Korridor\LaravelModelValidationRules\Rules\UniqueEloquent;
 use Korridor\LaravelModelValidationRules\Rules\ExistsEloquent;
 // ...
-public function rules()
+public function rules(): array
 {
     $postId = $this->post->id;
     
@@ -93,13 +84,74 @@ public function rules()
 }
 ```
 
+### Custom validation message
+
+If you want to change the validation message for one specific case, you can use the `withMessage(...)` function to add a custom validation message.
+With `withCustomTranslation(...)` you can set a custom translation key for the validation message.
+As described in detail in the next example ([Customize default validation message](#customize-default-validation-message)), it is possible to use `:attribute`, `:model` and `:value` in the translation.
+
+```php
+use Korridor\LaravelModelValidationRules\Rules\UniqueEloquent;
+use Korridor\LaravelModelValidationRules\Rules\ExistsEloquent;
+// ...
+public function rules(): array
+{
+    $postId = $this->post->id;
+    
+    return [
+        'id' => [(new ExistsEloquent(Post::class))->withMessage('The ID already exists.')],
+        'username' => [
+            (new UniqueEloquent(User::class, 'username'))
+                ->ignore($postId)
+                ->withCustomTranslation('validation.custom.username.unique_eloquent')
+        ],
+        'title' => ['string'],
+        'content' => ['string'],
+        'comments.*.id' => [
+            'nullable',
+            new ExistsEloquent(Comment::class, null, function (Builder $builder) use ($postId) {
+                return $builder->where('post_id', $postId);
+            }),
+        ],
+        'comments.*.content' => ['string']
+    ];
+}
+```
+
+### Customize default validation message
+
+If you want to customize the translations of the default validation errors you can publish the translations
+of the package to the `resources/lang/vendor/modelValidationRules` folder.
+
+```bash
+php artisan vendor:publish --provider="Korridor\LaravelModelValidationRules\ModelValidationServiceProvider"
+```
+
+You can use the following attributes in the validation message:
+
+ - `attribute`
+ - `model`
+ - `value`
+
+```php
+return [
+    'exists_model' => 'A :model with the :attribute ":value" does not exist.',
+    'unique_model' => 'A :model with the :attribute ":value" already exists.',
+];
+```
+
+Example outputs would be:
+
+ - `A user with the id "2" does not exist.`
+ - `A user with the id "2" already exists.`
+
 ## Contributing
 
 I am open for suggestions and contributions. Just create an issue or a pull request.
 
 ### Local docker environment
 
-The `docker` folder contains a local docker enironment for development.
+The `docker` folder contains a local docker environment for development.
 The docker workspace has composer and xdebug installed.
 
 ```bash
