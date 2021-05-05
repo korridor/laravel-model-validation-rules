@@ -23,14 +23,14 @@ abstract class TestCase extends Orchestra
      * @param Application $app
      * @return array
      */
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return [
             ModelValidationServiceProvider::class,
         ];
     }
 
-    protected function setUpDatabase()
+    protected function setUpDatabase(): void
     {
         $manager = new Manager();
         $manager->addConnection(['driver' => 'sqlite', 'database' => ':memory:']);
