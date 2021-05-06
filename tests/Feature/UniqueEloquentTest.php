@@ -175,6 +175,23 @@ class UniqueEloquentTest extends TestCase
         $this->assertEquals('id User 2', $rule->message());
     }
 
+    public function testThatValidationCanUseCustomMessage()
+    {
+        Lang::addLines([
+            'validation.unique_model' => ':attribute :model :value',
+        ], Lang::getLocale(), 'modelValidationRules');
+        $rule = (new UniqueEloquent(User::class))->withMessage('I can\'t allow the :model :attribute to do that dave');
+        User::create([
+            'id' => 2,
+            'name' => 'Testname',
+            'email' => 'name@test.com',
+            'password' => bcrypt('secret'),
+            'remember_token' => Str::random(10),
+        ]);
+        $rule->passes('id', 2);
+        $this->assertEquals('I can\'t allow the User id to do that dave', $rule->message());
+    }
+
     /*
      * Test ignore
      */

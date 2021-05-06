@@ -45,6 +45,11 @@ class UniqueEloquent implements Rule
     private $ignoreColumn;
 
     /**
+     * @var $string
+     */
+    private $message;
+
+    /**
      * UniqueEloquent constructor.
      * @param string $model
      * @param string|null $key
@@ -94,11 +99,23 @@ class UniqueEloquent implements Rule
      */
     public function message(): string
     {
-        return trans('modelValidationRules::validation.unique_model', [
+        return trans($this->message ?: 'modelValidationRules::validation.unique_model', [
             'attribute' => $this->attribute,
             'model' => class_basename($this->model),
             'value' => $this->value,
         ]);
+    }
+
+    /**
+     * Set a custom validation message.
+     *
+     * @return UniqueEloquent
+     */
+    public function withMessage(string $message)
+    {
+        $this->message = $message;
+
+        return $this;
     }
 
     /**
@@ -111,7 +128,7 @@ class UniqueEloquent implements Rule
 
     /**
      * @param Closure $builderClosure
-     * @return $this
+     * @return UniqueEloquent
      */
     public function query(Closure $builderClosure): self
     {

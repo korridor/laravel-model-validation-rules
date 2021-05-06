@@ -35,6 +35,11 @@ class ExistsEloquent implements Rule
     private $value;
 
     /**
+     * @var $string
+     */
+    private $message;
+
+    /**
      * Create a new rule instance.
      *
      * @param string $model
@@ -82,11 +87,23 @@ class ExistsEloquent implements Rule
      */
     public function message(): string
     {
-        return trans('modelValidationRules::validation.exists_model', [
+        return trans($this->message ?: 'modelValidationRules::validation.exists_model', [
             'attribute' => $this->attribute,
             'model' => class_basename($this->model),
             'value' => $this->value,
         ]);
+    }
+
+    /**
+     * Set a custom validation message.
+     *
+     * @return ExistsEloquent
+     */
+    public function withMessage(string $message)
+    {
+        $this->message = $message;
+
+        return $this;
     }
 
     /**
@@ -99,7 +116,7 @@ class ExistsEloquent implements Rule
 
     /**
      * @param Closure $builderClosure
-     * @return $this
+     * @return ExistsEloquent
      */
     public function query(Closure $builderClosure): self
     {
