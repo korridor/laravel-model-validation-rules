@@ -2,9 +2,10 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/korridor/laravel-model-validation-rules?style=flat-square)](https://packagist.org/packages/korridor/laravel-model-validation-rules)
 [![License](https://img.shields.io/packagist/l/korridor/laravel-model-validation-rules?style=flat-square)](license.md)
-[![TravisCI](https://img.shields.io/travis/korridor/laravel-model-validation-rules?style=flat-square)](https://travis-ci.org/korridor/laravel-model-validation-rules)
+[![TravisCI](https://img.shields.io/travis/com/korridor/laravel-model-validation-rules?style=flat-square)](https://travis-ci.com/korridor/laravel-model-validation-rules)
 [![Codecov](https://img.shields.io/codecov/c/github/korridor/laravel-model-validation-rules?style=flat-square)](https://codecov.io/gh/korridor/laravel-model-validation-rules)
 [![StyleCI](https://styleci.io/repos/208495858/shield)](https://styleci.io/repos/208495858)
+[![Supported PHP versions](https://img.shields.io/packagist/php-v/korridor/laravel-model-validation-rules?style=flat-square)](https://packagist.org/packages/korridor/laravel-model-validation-rules)
 
 This package is an alternative to the Laravel built-in validation rules `exists` and `unique`.
 It uses Eloquent models instead of directly querying the database.
