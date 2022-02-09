@@ -25,9 +25,10 @@ composer require korridor/laravel-model-validation-rules
 
 ### Requirements
 
-This package is tested for the following Laravel versions:
+This package is tested for the following Laravel and PHP versions:
 
- - 8.* (PHP 7.3, 7.4, 8.0)
+ - 9.* (PHP 8.0, 8.1)
+ - 8.* (PHP 7.4, 8.0, 8.1)
  - 7.* (PHP 7.2, 7.3, 7.4, 8.0)
  - 6.* (PHP 7.2, 7.4, 8.0)
  - 5.8.* (PHP 7.1, 7.4)
