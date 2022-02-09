@@ -59,9 +59,9 @@ class ExistsEloquent implements Rule
     /**
      * Create a new rule instance.
      *
-     * @param string $model Class name of model
-     * @param string|null $key Relevant key in the model
-     * @param Closure|null $builderClosure Closure that can extend the eloquent builder
+     * @param  string  $model  Class name of model
+     * @param  string|null  $key  Relevant key in the model
+     * @param  Closure|null  $builderClosure  Closure that can extend the eloquent builder
      */
     public function __construct(string $model, ?string $key = null, ?Closure $builderClosure = null)
     {
@@ -86,7 +86,6 @@ class ExistsEloquent implements Rule
      * Set a custom validation message.
      *
      * @param  string  $message
-     *
      * @return $this
      */
     public function withMessage(string $message): self
@@ -100,7 +99,6 @@ class ExistsEloquent implements Rule
      * Set a translated custom validation message.
      *
      * @param  string  $translationKey
-     *
      * @return $this
      */
     public function withCustomTranslation(string $translationKey): self
@@ -170,7 +168,7 @@ class ExistsEloquent implements Rule
     }
 
     /**
-     * @param Closure|null $builderClosure
+     * @param  Closure|null  $builderClosure
      */
     public function setBuilderClosure(?Closure $builderClosure)
     {
@@ -178,7 +176,7 @@ class ExistsEloquent implements Rule
     }
 
     /**
-     * @param Closure $builderClosure
+     * @param  Closure  $builderClosure
      * @return $this
      */
     public function query(Closure $builderClosure): self

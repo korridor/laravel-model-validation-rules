@@ -58,9 +58,10 @@ class UniqueEloquent implements Rule
 
     /**
      * UniqueEloquent constructor.
-     * @param string $model
-     * @param string|null $key
-     * @param Closure|null $builderClosure
+     *
+     * @param  string  $model
+     * @param  string|null  $key
+     * @param  Closure|null  $builderClosure
      */
     public function __construct(string $model, ?string $key = null, ?Closure $builderClosure = null)
     {
@@ -72,8 +73,8 @@ class UniqueEloquent implements Rule
     /**
      * Determine if the validation rule passes.
      *
-     * @param  string $attribute
-     * @param  mixed $value
+     * @param  string  $attribute
+     * @param  mixed  $value
      * @return bool
      */
     public function passes($attribute, $value): bool
@@ -115,7 +116,6 @@ class UniqueEloquent implements Rule
      * Set a custom validation message.
      *
      * @param  string  $message
-     *
      * @return $this
      */
     public function withMessage(string $message): self
@@ -129,7 +129,6 @@ class UniqueEloquent implements Rule
      * Set a translated custom validation message.
      *
      * @param  string  $translationKey
-     *
      * @return $this
      */
     public function withCustomTranslation(string $translationKey): self
@@ -172,7 +171,7 @@ class UniqueEloquent implements Rule
     }
 
     /**
-     * @param Closure|null $builderClosure
+     * @param  Closure|null  $builderClosure
      */
     public function setBuilderClosure(?Closure $builderClosure): void
     {
@@ -180,7 +179,7 @@ class UniqueEloquent implements Rule
     }
 
     /**
-     * @param Closure $builderClosure
+     * @param  Closure  $builderClosure
      * @return $this
      */
     public function query(Closure $builderClosure): self
@@ -191,8 +190,8 @@ class UniqueEloquent implements Rule
     }
 
     /**
-     * @param mixed $id
-     * @param string|null $column
+     * @param  mixed  $id
+     * @param  string|null  $column
      */
     public function setIgnore($id, ?string $column = null): void
     {
@@ -202,7 +201,7 @@ class UniqueEloquent implements Rule
 
     /**
      * @param $id
-     * @param string|null $column
+     * @param  string|null  $column
      * @return UniqueEloquent
      */
     public function ignore($id, ?string $column = null): self
