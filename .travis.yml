@@ -4,6 +4,8 @@ cache:
 
 language: php
 
+dist: bionic
+
 matrix:
     include:
         # Laravel 5.8.*
@@ -28,12 +30,17 @@ matrix:
         -   php: 8.0
             env: LARAVEL='7.*' TESTBENCH='5.*' COMPOSER_FLAGS='--prefer-stable'
         # Laravel 8.*
-        -   php: 7.3
-            env: LARAVEL='8.*' TESTBENCH='6.*' COMPOSER_FLAGS='--prefer-stable'
         -   php: 7.4
             env: LARAVEL='8.*' TESTBENCH='6.*' COMPOSER_FLAGS='--prefer-stable'
         -   php: 8.0
             env: LARAVEL='8.*' TESTBENCH='6.*' COMPOSER_FLAGS='--prefer-stable'
+        -   php: 8.1.0
+            env: LARAVEL='8.*' TESTBENCH='6.*' COMPOSER_FLAGS='--prefer-stable'
+        # Laravel 9.*
+        -   php: 8.0
+            env: LARAVEL='9.*' TESTBENCH='7.*' COMPOSER_FLAGS='--prefer-stable'
+        -   php: 8.1.0
+            env: LARAVEL='9.*' TESTBENCH='7.*' COMPOSER_FLAGS='--prefer-stable'
     fast_finish: true
 
 before_install:

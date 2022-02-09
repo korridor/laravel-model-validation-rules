@@ -20,7 +20,7 @@ abstract class TestCase extends Orchestra
     }
 
     /**
-     * @param Application $app
+     * @param  Application  $app
      * @return array
      */
     protected function getPackageProviders($app): array
