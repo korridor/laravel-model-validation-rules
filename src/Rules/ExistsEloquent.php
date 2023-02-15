@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Korridor\LaravelModelValidationRules\Rules;
 
 use Closure;
@@ -170,7 +172,7 @@ class ExistsEloquent implements Rule
     /**
      * @param  Closure|null  $builderClosure
      */
-    public function setBuilderClosure(?Closure $builderClosure)
+    public function setBuilderClosure(?Closure $builderClosure): void
     {
         $this->builderClosure = $builderClosure;
     }
