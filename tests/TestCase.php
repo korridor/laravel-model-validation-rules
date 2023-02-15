@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Korridor\LaravelModelValidationRules\Tests;
 
 use Illuminate\Container\Container;
@@ -37,7 +39,7 @@ abstract class TestCase extends Orchestra
         $manager->setEventDispatcher(new Dispatcher(new Container()));
         $manager->setAsGlobal();
         $manager->bootEloquent();
-        $manager->schema()->create('users', function (Blueprint $table) {
+        $manager->schema()->create('users', function (Blueprint $table): void {
             $table->increments('id');
             $table->integer('other_id')->unsigned()->nullable();
             $table->string('name');
@@ -47,7 +49,7 @@ abstract class TestCase extends Orchestra
             $table->softDeletes();
             $table->timestamps();
         });
-        $manager->schema()->create('facts', function (Blueprint $table) {
+        $manager->schema()->create('facts', function (Blueprint $table): void {
             $table->increments('id');
             $table->integer('user_id')->unsigned();
             $table->string('type');

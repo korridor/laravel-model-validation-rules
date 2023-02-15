@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Korridor\LaravelModelValidationRules\Tests\TestEnvironment\Models;
 
 use Illuminate\Database\Eloquent\Model;

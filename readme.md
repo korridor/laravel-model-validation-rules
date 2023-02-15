@@ -2,10 +2,10 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/korridor/laravel-model-validation-rules?style=flat-square)](https://packagist.org/packages/korridor/laravel-model-validation-rules)
 [![License](https://img.shields.io/packagist/l/korridor/laravel-model-validation-rules?style=flat-square)](license.md)
-[![TravisCI](https://img.shields.io/travis/com/korridor/laravel-model-validation-rules?style=flat-square)](https://travis-ci.com/korridor/laravel-model-validation-rules)
-[![Codecov](https://img.shields.io/codecov/c/github/korridor/laravel-model-validation-rules?style=flat-square)](https://codecov.io/gh/korridor/laravel-model-validation-rules)
-[![StyleCI](https://styleci.io/repos/208495858/shield)](https://styleci.io/repos/208495858)
 [![Supported PHP versions](https://img.shields.io/packagist/php-v/korridor/laravel-model-validation-rules?style=flat-square)](https://packagist.org/packages/korridor/laravel-model-validation-rules)
+![GitHub Workflow Tests Status](https://img.shields.io/github/actions/workflow/status/korridor/symfony-scaleway-tem-mailer/unittests.yml?label=tests&style=flat-square)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/korridor/symfony-scaleway-tem-mailer/lint.yml?label=lint&style=flat-square)
+[![Codecov](https://img.shields.io/codecov/c/github/korridor/laravel-model-validation-rules?style=flat-square)](https://codecov.io/gh/korridor/laravel-model-validation-rules)
 
 This package is an alternative to the Laravel built-in validation rules `exists` and `unique`.
 It uses Eloquent models instead of directly querying the database.
@@ -27,11 +27,11 @@ composer require korridor/laravel-model-validation-rules
 
 This package is tested for the following Laravel and PHP versions:
 
+ - 10.* (PHP 8.1, 8.2)
  - 9.* (PHP 8.0, 8.1)
  - 8.* (PHP 7.4, 8.0, 8.1)
- - 7.* (PHP 7.2, 7.3, 7.4, 8.0)
- - 6.* (PHP 7.2, 7.4, 8.0)
- - 5.8.* (PHP 7.1, 7.4)
+ - 7.* (PHP 7.4, 8.0)
+ - 6.* (PHP 7.4, 8.0)
 
 ## Usage examples
 
