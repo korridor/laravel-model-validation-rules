@@ -7,6 +7,7 @@ namespace Korridor\LaravelModelValidationRules\Tests\Feature;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Korridor\LaravelModelValidationRules\Rules\UniqueEloquent;
 use Korridor\LaravelModelValidationRules\Tests\TestCase;
@@ -24,19 +25,25 @@ class UniqueEloquentTest extends TestCase
     public function testValidationPassesWhenIfEntryDoesNotExistInDatabase(): void
     {
         // Arrange
-        $rule = new UniqueEloquent(User::class);
+        $validator = Validator::make([
+            'id' => 1,
+        ], [
+            'id' => [new UniqueEloquent(User::class)]
+        ]);
 
         // Act
-        $isValid = $rule->passes('id', 1);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
         $this->assertTrue($isValid);
+        $this->assertArrayNotHasKey('id', $messages);
     }
 
     public function testValidationPassesIfEntryIsSoftDeleted(): void
     {
         // Arrange
-        $user = User::create([
+        $user = User::query()->create([
             'id' => 1,
             'name' => 'Testname',
             'email' => 'name@test.com',
@@ -44,13 +51,19 @@ class UniqueEloquentTest extends TestCase
             'remember_token' => Str::random(10),
         ]);
         $user->delete();
-        $rule = new UniqueEloquent(User::class);
+        $validator = Validator::make([
+            'id' => 1,
+        ], [
+            'id' => [new UniqueEloquent(User::class)]
+        ]);
 
         // Act
-        $isValid = $rule->passes('id', 1);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
         $this->assertTrue($isValid);
+        $this->assertArrayNotHasKey('id', $messages);
         $this->assertCount(1, User::withTrashed()->get());
         $this->assertCount(0, User::all());
     }
@@ -58,20 +71,26 @@ class UniqueEloquentTest extends TestCase
     public function testValidationFailsIfEntryWithCorrectAttributeExists(): void
     {
         // Arrange
-        User::create([
+        User::query()->create([
             'id' => 2,
             'name' => 'Testname',
             'email' => 'name@test.com',
             'password' => bcrypt('secret'),
             'remember_token' => Str::random(10),
         ]);
-        $rule = new UniqueEloquent(User::class);
+        $validator = Validator::make([
+            'id' => 2,
+        ], [
+            'id' => [new UniqueEloquent(User::class)]
+        ]);
 
         // Act
-        $isValid = $rule->passes('id', 2);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
         $this->assertFalse($isValid);
+        $this->assertEquals('The resource already exists.', $messages['id'][0]);
         $this->assertCount(1, User::all());
     }
 
@@ -82,19 +101,25 @@ class UniqueEloquentTest extends TestCase
     public function testValidationPassesIfEntryDoesNotExistInDatabaseUsingOtherAttribute(): void
     {
         // Arrange
-        $rule = new UniqueEloquent(User::class, 'other_id');
+        $validator = Validator::make([
+            'id' => 1,
+        ], [
+            'id' => [new UniqueEloquent(User::class, 'other_id')]
+        ]);
 
         // Act
-        $isValid = $rule->passes('id', 1);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
         $this->assertTrue($isValid);
+        $this->assertArrayNotHasKey('id', $messages);
     }
 
     public function testValidationPassesIfEntryIsSoftDeletedUsingOtherAttribute(): void
     {
         // Arrange
-        $user = User::create([
+        $user = User::query()->create([
             'id' => 1,
             'other_id' => 3,
             'name' => 'Testname',
@@ -103,13 +128,19 @@ class UniqueEloquentTest extends TestCase
             'remember_token' => Str::random(10),
         ]);
         $user->delete();
-        $rule = new UniqueEloquent(User::class, 'other_id');
+        $validator = Validator::make([
+            'id' => 3,
+        ], [
+            'id' => [new UniqueEloquent(User::class, 'other_id')]
+        ]);
 
         // Act
-        $isValid = $rule->passes('id', 3);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
         $this->assertTrue($isValid);
+        $this->assertArrayNotHasKey('id', $messages);
         $this->assertCount(1, User::withTrashed()->get());
         $this->assertCount(0, User::all());
     }
@@ -117,7 +148,7 @@ class UniqueEloquentTest extends TestCase
     public function testValidationFailsIfEntryWithCorrectAttributeExistsUsingOtherAttribute(): void
     {
         // Arrange
-        User::create([
+        User::query()->create([
             'id' => 2,
             'other_id' => 4,
             'name' => 'Testname',
@@ -125,13 +156,19 @@ class UniqueEloquentTest extends TestCase
             'password' => bcrypt('secret'),
             'remember_token' => Str::random(10),
         ]);
-        $rule = new UniqueEloquent(User::class, 'other_id');
+        $validator = Validator::make([
+            'id' => 4,
+        ], [
+            'id' => [new UniqueEloquent(User::class, 'other_id')]
+        ]);
 
         // Act
-        $isValid = $rule->passes('id', 4);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
         $this->assertFalse($isValid);
+        $this->assertEquals('The resource already exists.', $messages['id'][0]);
         $this->assertCount(1, User::withTrashed()->get());
         $this->assertCount(1, User::all());
     }
@@ -143,7 +180,7 @@ class UniqueEloquentTest extends TestCase
     public function testValidationFailsIfRuleChecksThatFactExistsAndBelongsToUserUsingConstructor(): void
     {
         // Arrange
-        User::create([
+        User::query()->create([
             'id' => 6,
             'other_id' => null,
             'name' => 'Testname',
@@ -151,21 +188,29 @@ class UniqueEloquentTest extends TestCase
             'password' => bcrypt('secret'),
             'remember_token' => Str::random(10),
         ]);
-        Fact::create([
+        Fact::query()->create([
             'id' => 1,
             'user_id' => 6,
             'type' => 'type1',
             'description' => 'Long desc',
         ]);
-        $rule = new UniqueEloquent(Fact::class, null, function (Builder $builder) {
-            return $builder->where('user_id', 6);
-        });
+        $validator = Validator::make([
+            'id' => 1,
+        ], [
+            'id' => [
+                new UniqueEloquent(Fact::class, null, function (Builder $builder) {
+                    return $builder->where('user_id', 6);
+                })
+            ]
+        ]);
 
         // Act
-        $isValid = $rule->passes('id', 1);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
         $this->assertFalse($isValid);
+        $this->assertEquals('The resource already exists.', $messages['id'][0]);
         $this->assertCount(1, User::withTrashed()->get());
         $this->assertCount(1, User::all());
         $this->assertCount(1, Fact::withTrashed()->get());
@@ -175,7 +220,7 @@ class UniqueEloquentTest extends TestCase
     public function testValidationFailsIfRuleChecksThatFactExistsAndBelongsToUserUsingFunction(): void
     {
         // Arrange
-        User::create([
+        User::query()->create([
             'id' => 6,
             'other_id' => null,
             'name' => 'Testname',
@@ -183,21 +228,29 @@ class UniqueEloquentTest extends TestCase
             'password' => bcrypt('secret'),
             'remember_token' => Str::random(10),
         ]);
-        Fact::create([
+        Fact::query()->create([
             'id' => 1,
             'user_id' => 6,
             'type' => 'type1',
             'description' => 'Long desc',
         ]);
-        $rule = (new UniqueEloquent(Fact::class))->query(function (Builder $builder) {
-            return $builder->where('user_id', 6);
-        });
+        $validator = Validator::make([
+            'id' => 1,
+        ], [
+            'id' => [
+                (new UniqueEloquent(Fact::class))->query(function (Builder $builder) {
+                    return $builder->where('user_id', 6);
+                })
+            ]
+        ]);
 
         // Act
-        $isValid = $rule->passes('id', 1);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
         $this->assertFalse($isValid);
+        $this->assertEquals('The resource already exists.', $messages['id'][0]);
         $this->assertCount(1, User::withTrashed()->get());
         $this->assertCount(1, User::all());
         $this->assertCount(1, Fact::withTrashed()->get());
@@ -214,41 +267,57 @@ class UniqueEloquentTest extends TestCase
         Lang::addLines([
             'validation.unique_model' => 'A :model with the :attribute ":value" already exists.',
         ], Lang::getLocale(), 'modelValidationRules');
-        User::create([
+        User::query()->create([
             'id' => 2,
             'name' => 'Testname',
             'email' => 'name@test.com',
             'password' => bcrypt('secret'),
             'remember_token' => Str::random(10),
         ]);
-        $rule = new UniqueEloquent(User::class);
+        $validator = Validator::make([
+            'id' => 2,
+        ], [
+            'id' => [
+                new UniqueEloquent(User::class)
+            ]
+        ]);
 
         // Act
-        $rule->passes('id', 2);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
-        $this->assertEquals('A user with the id "2" already exists.', $rule->message());
+        $this->assertFalse($isValid);
+        $this->assertEquals('A user with the id "2" already exists.', $messages['id'][0]);
     }
 
     public function testValidationMessageIsFromCustomValidationMessagePropertyIfItHasBeenSet(): void
     {
         // Arrange
         $customValidationMessage = 'The user is not unique!';
-        User::create([
+        User::query()->create([
             'id' => 2,
             'name' => 'Testname',
             'email' => 'name@test.com',
             'password' => bcrypt('secret'),
             'remember_token' => Str::random(10),
         ]);
-        $rule = (new UniqueEloquent(User::class))
-            ->withMessage($customValidationMessage);
+        $validator = Validator::make([
+            'id' => 2,
+        ], [
+            'id' => [
+                (new UniqueEloquent(User::class))
+                    ->withMessage($customValidationMessage)
+            ]
+        ]);
 
         // Act
-        $rule->passes('id', 3);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
-        $this->assertEquals($customValidationMessage, $rule->message());
+        $this->assertFalse($isValid);
+        $this->assertEquals($customValidationMessage, $messages['id'][0]);
     }
 
     public function testValidationMessageIsLaravelTranslationIfCustomTranslationIsSet(): void
@@ -257,21 +326,29 @@ class UniqueEloquentTest extends TestCase
         Lang::addLines([
             'validation.custom.user_already_exists' => 'A :model with the :attribute ":value" already exists. / Test',
         ], Lang::getLocale());
-        User::create([
+        User::query()->create([
             'id' => 2,
             'name' => 'Testname',
             'email' => 'name@test.com',
             'password' => bcrypt('secret'),
             'remember_token' => Str::random(10),
         ]);
-        $rule = (new UniqueEloquent(User::class))
-                    ->withCustomTranslation('validation.custom.user_already_exists');
+        $validator = Validator::make([
+            'id' => 2,
+        ], [
+            'id' => [
+                (new UniqueEloquent(User::class))
+                    ->withCustomTranslation('validation.custom.user_already_exists')
+            ]
+        ]);
 
         // Act
-        $rule->passes('id', 2);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
-        $this->assertEquals('A user with the id "2" already exists. / Test', $rule->message());
+        $this->assertFalse($isValid);
+        $this->assertEquals('A user with the id "2" already exists. / Test', $messages['id'][0]);
     }
 
     /*
@@ -281,7 +358,7 @@ class UniqueEloquentTest extends TestCase
     public function testIgnoringEntryWithDefaultIdColumn(): void
     {
         // Arrange
-        User::create([
+        User::query()->create([
             'id' => 1,
             'other_id' => null,
             'name' => 'Testname',
@@ -289,7 +366,7 @@ class UniqueEloquentTest extends TestCase
             'password' => bcrypt('secret'),
             'remember_token' => Str::random(10),
         ]);
-        User::create([
+        User::query()->create([
             'id' => 2,
             'other_id' => null,
             'name' => 'Testname',
@@ -297,19 +374,27 @@ class UniqueEloquentTest extends TestCase
             'password' => bcrypt('secret'),
             'remember_token' => Str::random(10),
         ]);
-        $rule = (new UniqueEloquent(User::class))->ignore(1);
+        $validator = Validator::make([
+            'id' => 1,
+        ], [
+            'id' => [
+                (new UniqueEloquent(User::class))->ignore(1)
+            ]
+        ]);
 
         // Act
-        $isValid = $rule->passes('id', 1);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
         $this->assertTrue($isValid);
+        $this->assertArrayNotHasKey('id', $messages);
     }
 
     public function testIgnoringEntryWithGivenIdColumn(): void
     {
         // Arrange
-        User::create([
+        User::query()->create([
             'id' => 1,
             'other_id' => null,
             'name' => 'Testname',
@@ -317,7 +402,7 @@ class UniqueEloquentTest extends TestCase
             'password' => bcrypt('secret'),
             'remember_token' => Str::random(10),
         ]);
-        User::create([
+        User::query()->create([
             'id' => 2,
             'other_id' => null,
             'name' => 'Testname',
@@ -325,12 +410,21 @@ class UniqueEloquentTest extends TestCase
             'password' => bcrypt('secret'),
             'remember_token' => Str::random(10),
         ]);
-        $rule = (new UniqueEloquent(User::class, 'email'))->ignore('name1@test.com', 'email');
+        $validator = Validator::make([
+            'email' => 'name1@test.com',
+        ], [
+            'email' => [
+                (new UniqueEloquent(User::class, 'email'))
+                    ->ignore('name1@test.com', 'email')
+            ]
+        ]);
 
         // Act
-        $isValid = $rule->passes('email', 'name1@test.com');
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
         $this->assertTrue($isValid);
+        $this->assertArrayNotHasKey('id', $messages);
     }
 }

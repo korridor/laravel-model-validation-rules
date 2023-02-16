@@ -15,12 +15,12 @@ class User extends Model
     /**
      * The attributes that aren't mass assignable.
      *
-     * @var array
+     * @var array<string>
      */
     protected $guarded = [];
 
     /**
-     * @return HasMany|Fact
+     * @return HasMany<Fact>
      */
     public function user(): HasMany
     {

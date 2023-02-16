@@ -5,63 +5,51 @@ declare(strict_types=1);
 namespace Korridor\LaravelModelValidationRules\Rules;
 
 use Closure;
-use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
-class ExistsEloquent implements Rule
+class ExistsEloquent implements ValidationRule
 {
     /**
      * Class name of model.
      *
-     * @var string
+     * @var class-string<Model>
      */
-    private $model;
+    private string $model;
 
     /**
      * Relevant key in the model.
      *
      * @var string|null
      */
-    private $key;
+    private ?string $key;
 
     /**
      * Closure that can extend the eloquent builder.
      *
      * @var Closure|null
      */
-    private $builderClosure;
-
-    /**
-     * Current attribute that is validated.
-     *
-     * @var string
-     */
-    private $attribute = null;
-
-    /**
-     * Current value that is validated.
-     *
-     * @var mixed
-     */
-    private $value = null;
+    private ?Closure $builderClosure;
 
     /**
      * Custom validation message.
      *
      * @var string|null
      */
-    private $message = null;
+    private ?string $customMessage = null;
 
     /**
-     * @var bool|null
+     * Custom translation key for message.
+     *
+     * @var string|null
      */
-    private $messageTranslated = null;
+    private ?string $customMessageTranslationKey = null;
 
     /**
      * Create a new rule instance.
      *
-     * @param  string  $model  Class name of model
+     * @param  class-string<Model>  $model  Class name of model
      * @param  string|null  $key  Relevant key in the model
      * @param  Closure|null  $builderClosure  Closure that can extend the eloquent builder
      */
@@ -76,23 +64,11 @@ class ExistsEloquent implements Rule
      * Set a custom validation message.
      *
      * @param  string  $message
-     * @param  bool  $translated
-     */
-    public function setMessage(string $message, bool $translated): void
-    {
-        $this->message = $message;
-        $this->messageTranslated = $translated;
-    }
-
-    /**
-     * Set a custom validation message.
-     *
-     * @param  string  $message
      * @return $this
      */
     public function withMessage(string $message): self
     {
-        $this->setMessage($message, false);
+        $this->customMessage = $message;
 
         return $this;
     }
@@ -105,7 +81,7 @@ class ExistsEloquent implements Rule
      */
     public function withCustomTranslation(string $translationKey): self
     {
-        $this->setMessage($translationKey, true);
+        $this->customMessageTranslationKey = $translationKey;
 
         return $this;
     }
@@ -115,12 +91,12 @@ class ExistsEloquent implements Rule
      *
      * @param  string  $attribute
      * @param  mixed  $value
-     * @return bool
+     * @param  Closure  $fail
+     *
+     * @return void
      */
-    public function passes($attribute, $value): bool
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $this->attribute = $attribute;
-        $this->value = $value;
         /** @var Model|Builder $builder */
         $builder = new $this->model();
         $modelKeyName = $builder->getKeyName();
@@ -134,38 +110,16 @@ class ExistsEloquent implements Rule
             $builder = $builderClosure($builder);
         }
 
-        return $builder->exists();
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message(): string
-    {
-        if ($this->message !== null) {
-            if ($this->messageTranslated) {
-                return trans(
-                    $this->message,
-                    [
-                        'attribute' => $this->attribute,
-                        'model' => strtolower(class_basename($this->model)),
-                        'value' => $this->value,
-                    ]
-                );
+        if ($builder->doesntExist()) {
+            if ($this->customMessage !== null) {
+                $fail($this->customMessage);
             } else {
-                return $this->message;
-            }
-        } else {
-            return trans(
-                'modelValidationRules::validation.exists_model',
-                [
-                    'attribute' => $this->attribute,
+                $fail($this->customMessageTranslationKey ?? 'modelValidationRules::validation.exists_model')->translate([
+                    'attribute' => $attribute,
                     'model'     => strtolower(class_basename($this->model)),
-                    'value'     => $this->value,
-                ]
-            );
+                    'value'     => $value,
+                ]);
+            }
         }
     }
 

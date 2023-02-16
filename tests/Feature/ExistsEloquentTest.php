@@ -7,6 +7,7 @@ namespace Korridor\LaravelModelValidationRules\Tests\Feature;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Korridor\LaravelModelValidationRules\Rules\ExistsEloquent;
 use Korridor\LaravelModelValidationRules\Tests\TestCase;
@@ -24,13 +25,19 @@ class ExistsEloquentTest extends TestCase
     public function testValidationFailsIfEntryDoesNotExistInDatabase(): void
     {
         // Arrange
-        $rule = new ExistsEloquent(User::class);
+        $validator = Validator::make([
+            'id' => 1,
+        ], [
+            'id' => [new ExistsEloquent(User::class)]
+        ]);
 
         // Act
-        $isValid = $rule->passes('id', 1);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
         $this->assertFalse($isValid);
+        $this->assertEquals('The resource does not exist.', $messages['id'][0]);
     }
 
     public function testValidationFailsIfEntryIsSoftDeleted(): void
@@ -44,13 +51,19 @@ class ExistsEloquentTest extends TestCase
             'remember_token' => Str::random(10),
         ]);
         $user->delete();
-        $rule = new ExistsEloquent(User::class);
+        $validator = Validator::make([
+            'id' => 1,
+        ], [
+            'id' => [new ExistsEloquent(User::class)]
+        ]);
 
         // Act
-        $isValid = $rule->passes('id', 1);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
         $this->assertFalse($isValid);
+        $this->assertEquals('The resource does not exist.', $messages['id'][0]);
         $this->assertCount(1, User::withTrashed()->get());
         $this->assertCount(0, User::all());
     }
@@ -65,13 +78,19 @@ class ExistsEloquentTest extends TestCase
             'password' => bcrypt('secret'),
             'remember_token' => Str::random(10),
         ]);
-        $rule = new ExistsEloquent(User::class);
+        $validator = Validator::make([
+            'id' => 2,
+        ], [
+            'id' => [new ExistsEloquent(User::class)]
+        ]);
 
         // Act
-        $isValid = $rule->passes('id', 2);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
         $this->assertTrue($isValid);
+        $this->assertArrayNotHasKey('id', $messages);
         $this->assertCount(1, User::all());
     }
 
@@ -82,13 +101,19 @@ class ExistsEloquentTest extends TestCase
     public function testValidationFailsIfEntryDoesNotExistInDatabaseUsingOtherAttribute(): void
     {
         // Arrange
-        $rule = new ExistsEloquent(User::class, 'other_id');
+        $validator = Validator::make([
+            'id' => 1,
+        ], [
+            'id' => [new ExistsEloquent(User::class, 'other_id')]
+        ]);
 
         // Act
-        $isValid = $rule->passes('id', 1);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
         $this->assertFalse($isValid);
+        $this->assertEquals('The resource does not exist.', $messages['id'][0]);
     }
 
     public function testValidationFailsIfEntryIsSoftDeletedUsingOtherAttribute(): void
@@ -103,13 +128,19 @@ class ExistsEloquentTest extends TestCase
             'remember_token' => Str::random(10),
         ]);
         $user->delete();
-        $rule = new ExistsEloquent(User::class, 'other_id');
+        $validator = Validator::make([
+            'id' => 3,
+        ], [
+            'id' => [new ExistsEloquent(User::class, 'other_id')]
+        ]);
 
         // Act
-        $isValid = $rule->passes('id', 3);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
         $this->assertFalse($isValid);
+        $this->assertEquals('The resource does not exist.', $messages['id'][0]);
         $this->assertCount(1, User::withTrashed()->get());
         $this->assertCount(0, User::all());
     }
@@ -125,12 +156,19 @@ class ExistsEloquentTest extends TestCase
             'password' => bcrypt('secret'),
             'remember_token' => Str::random(10),
         ]);
-        $rule = new ExistsEloquent(User::class, 'other_id');
+        $validator = Validator::make([
+            'id' => 4,
+        ], [
+            'id' => [new ExistsEloquent(User::class, 'other_id')]
+        ]);
 
         // Act
-        $isValid = $rule->passes('id', 4);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
+        // Assert
         $this->assertTrue($isValid);
+        $this->assertArrayNotHasKey('id', $messages);
         $this->assertCount(1, User::withTrashed()->get());
         $this->assertCount(1, User::all());
     }
@@ -156,15 +194,21 @@ class ExistsEloquentTest extends TestCase
             'type' => 'type1',
             'description' => 'Long desc',
         ]);
-        $rule = new ExistsEloquent(Fact::class, null, function (Builder $builder) {
-            return $builder->where('user_id', 6);
-        });
+        $validator = Validator::make([
+            'id' => 1,
+        ], [
+            'id' => [new ExistsEloquent(Fact::class, null, function (Builder $builder) {
+                return $builder->where('user_id', 6);
+            })]
+        ]);
 
         // Act
-        $isValid = $rule->passes('id', 1);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
         $this->assertTrue($isValid);
+        $this->assertArrayNotHasKey('id', $messages);
         $this->assertCount(1, User::withTrashed()->get());
         $this->assertCount(1, User::all());
         $this->assertCount(1, Fact::withTrashed()->get());
@@ -188,15 +232,23 @@ class ExistsEloquentTest extends TestCase
             'type' => 'type1',
             'description' => 'Long desc',
         ]);
-        $rule = (new ExistsEloquent(Fact::class))->query(function (Builder $builder) {
-            return $builder->where('user_id', 6);
-        });
+        $validator = Validator::make([
+            'id' => 1,
+        ], [
+            'id' => [
+                (new ExistsEloquent(Fact::class))->query(function (Builder $builder) {
+                    return $builder->where('user_id', 6);
+                })
+            ]
+        ]);
 
         // Act
-        $isValid = $rule->passes('id', 1);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
         $this->assertTrue($isValid);
+        $this->assertArrayNotHasKey('id', $messages);
         $this->assertCount(1, User::withTrashed()->get());
         $this->assertCount(1, User::all());
         $this->assertCount(1, Fact::withTrashed()->get());
@@ -213,20 +265,19 @@ class ExistsEloquentTest extends TestCase
         Lang::addLines([
             'validation.exists_model' => 'A :model with the :attribute ":value" does not exist.',
         ], Lang::getLocale(), 'modelValidationRules');
-        User::create([
+        $validator = Validator::make([
             'id' => 2,
-            'name' => 'Testname',
-            'email' => 'name@test.com',
-            'password' => bcrypt('secret'),
-            'remember_token' => Str::random(10),
+        ], [
+            'id' => [new ExistsEloquent(User::class)]
         ]);
-        $rule = new ExistsEloquent(User::class);
 
         // Act
-        $rule->passes('id', 2);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
-        $this->assertEquals('A user with the id "2" does not exist.', $rule->message());
+        $this->assertFalse($isValid);
+        $this->assertEquals('A user with the id "2" does not exist.', $messages['id'][0]);
     }
 
     public function testValidationMessageIsFromCustomValidationMessagePropertyIfItHasBeenSet(): void
@@ -240,14 +291,22 @@ class ExistsEloquentTest extends TestCase
             'password' => bcrypt('secret'),
             'remember_token' => Str::random(10),
         ]);
-        $rule = (new ExistsEloquent(User::class))
-            ->withMessage($customValidationMessage);
+        $validator = Validator::make([
+            'id' => 3,
+        ], [
+            'id' => [
+                (new ExistsEloquent(User::class))
+                    ->withMessage($customValidationMessage)
+            ]
+        ]);
 
         // Act
-        $rule->passes('id', 3);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
-        $this->assertEquals($customValidationMessage, $rule->message());
+        $this->assertFalse($isValid);
+        $this->assertEquals($customValidationMessage, $messages['id'][0]);
     }
 
     public function testValidationMessageIsLaravelTranslationIfCustomTranslationIsSet(): void
@@ -256,20 +315,21 @@ class ExistsEloquentTest extends TestCase
         Lang::addLines([
             'validation.custom.user_already_exists' => 'A :model with the :attribute ":value" does not exist. / Test',
         ], Lang::getLocale());
-        User::create([
-            'id' => 2,
-            'name' => 'Testname',
-            'email' => 'name@test.com',
-            'password' => bcrypt('secret'),
-            'remember_token' => Str::random(10),
+        $validator = Validator::make([
+            'id' => 1,
+        ], [
+            'id' => [
+                (new ExistsEloquent(User::class))
+                    ->withCustomTranslation('validation.custom.user_already_exists')
+            ]
         ]);
-        $rule = (new ExistsEloquent(User::class))
-            ->withCustomTranslation('validation.custom.user_already_exists');
 
         // Act
-        $rule->passes('id', 2);
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
 
         // Assert
-        $this->assertEquals('A user with the id "2" does not exist. / Test', $rule->message());
+        $this->assertFalse($isValid);
+        $this->assertEquals('A user with the id "1" does not exist. / Test', $messages['id'][0]);
     }
 }

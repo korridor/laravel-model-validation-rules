@@ -15,12 +15,12 @@ class Fact extends Model
     /**
      * The attributes that aren't mass assignable.
      *
-     * @var array
+     * @var array<string>
      */
     protected $guarded = [];
 
     /**
-     * @return BelongsTo|User
+     * @return BelongsTo<User>
      */
     public function user(): BelongsTo
     {
