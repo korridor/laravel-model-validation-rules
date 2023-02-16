@@ -3,8 +3,8 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/korridor/laravel-model-validation-rules?style=flat-square)](https://packagist.org/packages/korridor/laravel-model-validation-rules)
 [![License](https://img.shields.io/packagist/l/korridor/laravel-model-validation-rules?style=flat-square)](license.md)
 [![Supported PHP versions](https://img.shields.io/packagist/php-v/korridor/laravel-model-validation-rules?style=flat-square)](https://packagist.org/packages/korridor/laravel-model-validation-rules)
-![GitHub Workflow Tests Status](https://img.shields.io/github/actions/workflow/status/korridor/symfony-scaleway-tem-mailer/unittests.yml?label=tests&style=flat-square)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/korridor/symfony-scaleway-tem-mailer/lint.yml?label=lint&style=flat-square)
+[![GitHub Workflow Lint](https://img.shields.io/github/actions/workflow/status/korridor/laravel-model-validation-rules/lint.yml?label=lint&style=flat-square)](https://github.com/korridor/laravel-model-validation-rules/actions/workflows/lint.yml)
+[![GitHub Workflow Tests](https://img.shields.io/github/actions/workflow/status/korridor/laravel-model-validation-rules/unittests.yml?label=tests&style=flat-square)](https://github.com/korridor/laravel-model-validation-rules/actions/workflows/unittests.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/korridor/laravel-model-validation-rules?style=flat-square)](https://codecov.io/gh/korridor/laravel-model-validation-rules)
 
 This package is an alternative to the Laravel built-in validation rules `exists` and `unique`.
