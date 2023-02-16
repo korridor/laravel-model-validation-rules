@@ -12,7 +12,7 @@ It uses Eloquent models instead of directly querying the database.
 
 **Advantages**
  - The rule can be easily extended with the Eloquent builder. (scopes etc.)
- - Softdeletes are working out of the box.
+ - Soft deletes are working out of the box.
  - Logic implemented into the models work in the validation as well. (multi tenancy system, etc.)
 
 ## Installation
@@ -23,15 +23,17 @@ You can install the package via composer with following command:
 composer require korridor/laravel-model-validation-rules
 ```
 
+If you want to use this package with older Laravel/PHP version please install the 2.1.* version.
+
+```bash
+composer require korridor/laravel-model-validation-rules "^2.1"
+```
+
 ### Requirements
 
 This package is tested for the following Laravel and PHP versions:
 
  - 10.* (PHP 8.1, 8.2)
- - 9.* (PHP 8.0, 8.1)
- - 8.* (PHP 7.4, 8.0, 8.1)
- - 7.* (PHP 7.4, 8.0)
- - 6.* (PHP 7.4, 8.0)
 
 ## Usage examples
 
