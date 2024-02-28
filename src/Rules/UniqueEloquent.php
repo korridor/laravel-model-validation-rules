@@ -57,6 +57,13 @@ class UniqueEloquent implements ValidationRule
     private ?string $customMessageTranslationKey = null;
 
     /**
+     * Include soft deleted models in the query.
+     *
+     * @var bool
+     */
+    private bool $includeSoftDeleted = false;
+
+    /**
      * UniqueEloquent constructor.
      *
      * @param  class-string<Model> $model Class name of model.
@@ -95,6 +102,10 @@ class UniqueEloquent implements ValidationRule
                 '!=',
                 $this->ignoreId
             );
+        }
+
+        if ($this->includeSoftDeleted) {
+            $builder = $builder->withTrashed();
         }
 
         if ($builder->exists()) {
@@ -175,6 +186,29 @@ class UniqueEloquent implements ValidationRule
     public function ignore(mixed $id, ?string $column = null): self
     {
         $this->setIgnore($id, $column);
+
+        return $this;
+    }
+
+    /**
+     * Activate or deactivate including soft deleted models in the query.
+     *
+     * @param bool $includeSoftDeleted
+     * @return void
+     */
+    public function setIncludeSoftDeleted(bool $includeSoftDeleted): void
+    {
+        $this->includeSoftDeleted = $includeSoftDeleted;
+    }
+
+    /**
+     * Activate including soft deleted models in the query.
+     *
+     * @return $this
+     */
+    public function includeSoftDeleted(): self
+    {
+        $this->setIncludeSoftDeleted(true);
 
         return $this;
     }

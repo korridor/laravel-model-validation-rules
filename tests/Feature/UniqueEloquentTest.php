@@ -258,6 +258,79 @@ class UniqueEloquentTest extends TestCase
     }
 
     /*
+     * Tests for includeSoftDeleted
+     */
+
+    public function testValidationSucceedsIfSoftDeletedEntryDoesNotExistInDatabaseAndIncludeSoftDeletedFlagIsActive(): void
+    {
+        // Arrange
+        User::create([
+            'id' => 6,
+            'other_id' => null,
+            'name' => 'Testname',
+            'email' => 'name@test.com',
+            'password' => bcrypt('secret'),
+            'remember_token' => Str::random(10),
+        ]);
+
+        $validator = Validator::make([
+            'id' => 1,
+        ], [
+            'id' => [(new UniqueEloquent(Fact::class))->includeSoftDeleted()]
+        ]);
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $this->assertTrue($isValid);
+        $this->assertArrayNotHasKey('id', $messages);
+        $this->assertCount(1, User::withTrashed()->get());
+        $this->assertCount(1, User::all());
+        $this->assertCount(0, Fact::withTrashed()->get());
+        $this->assertCount(0, Fact::all());
+    }
+
+    public function testValidationFailsIfSoftDeletedEntryDoesExistInDatabaseAndIncludeSoftDeletedFlagIsActive(): void
+    {
+        // Arrange
+        User::create([
+            'id' => 6,
+            'other_id' => null,
+            'name' => 'Testname',
+            'email' => 'name@test.com',
+            'password' => bcrypt('secret'),
+            'remember_token' => Str::random(10),
+        ]);
+        $fact = Fact::create([
+            'id' => 1,
+            'user_id' => 6,
+            'type' => 'type1',
+            'description' => 'Long desc',
+        ]);
+        $fact->delete();
+
+        $validator = Validator::make([
+            'id' => 1,
+        ], [
+            'id' => [(new UniqueEloquent(Fact::class))->includeSoftDeleted()]
+        ]);
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $this->assertFalse($isValid);
+        $this->assertEquals('The resource already exists.', $messages['id'][0]);
+        $this->assertCount(1, User::withTrashed()->get());
+        $this->assertCount(1, User::all());
+        $this->assertCount(1, Fact::withTrashed()->get());
+        $this->assertCount(0, Fact::all());
+    }
+
+    /*
      * Test language support
      */
 
