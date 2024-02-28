@@ -47,6 +47,13 @@ class ExistsEloquent implements ValidationRule
     private ?string $customMessageTranslationKey = null;
 
     /**
+     * Include soft deleted models in the query.
+     *
+     * @var bool
+     */
+    private bool $includeSoftDeleted = false;
+
+    /**
      * Create a new rule instance.
      *
      * @param  class-string<Model>  $model  Class name of model
@@ -110,6 +117,10 @@ class ExistsEloquent implements ValidationRule
             $builder = $builderClosure($builder);
         }
 
+        if ($this->includeSoftDeleted) {
+            $builder = $builder->withTrashed();
+        }
+
         if ($builder->doesntExist()) {
             if ($this->customMessage !== null) {
                 $fail($this->customMessage);
@@ -138,6 +149,28 @@ class ExistsEloquent implements ValidationRule
     public function query(Closure $builderClosure): self
     {
         $this->setBuilderClosure($builderClosure);
+
+        return $this;
+    }
+
+    /**
+     * Activate or deactivate including soft deleted models in the query.
+     *
+     * @param bool $includeSoftDeleted
+     * @return void
+     */
+    public function setIncludeSoftDeleted(bool $includeSoftDeleted): void
+    {
+        $this->includeSoftDeleted = $includeSoftDeleted;
+    }
+
+    /**
+     *  Activate including soft deleted models in the query.
+     *  @return $this
+     */
+    public function includeSoftDeleted(): self
+    {
+        $this->setIncludeSoftDeleted(true);
 
         return $this;
     }
