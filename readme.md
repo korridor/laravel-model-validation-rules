@@ -15,6 +15,9 @@ It uses Eloquent models instead of directly querying the database.
  - Soft deletes are working out of the box.
  - Logic implemented into the models work in the validation as well. (multi tenancy system, etc.)
 
+> [!NOTE]
+> Check out **solidtime - The modern Open Source Time-Tracker** at [solidtime.io](https://www.solidtime.io)
+
 ## Installation
 
 You can install the package via composer with following command:
