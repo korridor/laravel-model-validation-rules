@@ -8,6 +8,7 @@ use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class ExistsEloquent implements ValidationRule
 {
@@ -54,6 +55,11 @@ class ExistsEloquent implements ValidationRule
     private bool $includeSoftDeleted = false;
 
     /**
+     * @var bool Whether the key field is of type UUID
+     */
+    private bool $isFieldUuid = false;
+
+    /**
      * Create a new rule instance.
      *
      * @param  class-string<Model>  $model  Class name of model
@@ -65,6 +71,18 @@ class ExistsEloquent implements ValidationRule
         $this->model = $model;
         $this->key = $key;
         $this->setBuilderClosure($builderClosure);
+    }
+
+    /**
+     * Create a new rule instance.
+     *
+     * @param  class-string<Model>  $model  Class name of model
+     * @param  string|null  $key  Relevant key in the model
+     * @param  Closure|null  $builderClosure  Closure that can extend the eloquent builder
+     */
+    public static function make(string $model, ?string $key = null, ?Closure $builderClosure = null): self
+    {
+        return new self($model, $key, $builderClosure);
     }
 
     /**
@@ -94,6 +112,20 @@ class ExistsEloquent implements ValidationRule
     }
 
     /**
+     * The field has the data type UUID.
+     * If the field is not a UUID, the validation will fail, before the query is executed.
+     * This is useful for example for Postgres databases where queries fail if a field with UUID data type is queried with a non-UUID value.
+     *
+     * @return $this
+     */
+    public function uuid(): self
+    {
+        $this->isFieldUuid = true;
+
+        return $this;
+    }
+
+    /**
      * Determine if the validation rule passes.
      *
      * @param  string  $attribute
@@ -104,6 +136,12 @@ class ExistsEloquent implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+        if ($this->isFieldUuid) {
+            if (!is_string($value) || !Str::isUuid($value)) {
+                $this->fail($attribute, $value, $fail);
+                return;
+            }
+        }
         /** @var Model|Builder $builder */
         $builder = new $this->model();
         $modelKeyName = $builder->getKeyName();
@@ -122,15 +160,21 @@ class ExistsEloquent implements ValidationRule
         }
 
         if ($builder->doesntExist()) {
-            if ($this->customMessage !== null) {
-                $fail($this->customMessage);
-            } else {
-                $fail($this->customMessageTranslationKey ?? 'modelValidationRules::validation.exists_model')->translate([
-                    'attribute' => $attribute,
-                    'model'     => strtolower(class_basename($this->model)),
-                    'value'     => $value,
-                ]);
-            }
+            $this->fail($attribute, $value, $fail);
+            return;
+        }
+    }
+
+    private function fail(string $attribute, mixed $value, Closure $fail): void
+    {
+        if ($this->customMessage !== null) {
+            $fail($this->customMessage);
+        } else {
+            $fail($this->customMessageTranslationKey ?? 'modelValidationRules::validation.exists_model')->translate([
+                'attribute' => $attribute,
+                'model'     => strtolower(class_basename($this->model)),
+                'value'     => $value,
+            ]);
         }
     }
 

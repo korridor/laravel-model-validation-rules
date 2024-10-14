@@ -500,4 +500,62 @@ class UniqueEloquentTest extends TestCase
         $this->assertTrue($isValid);
         $this->assertArrayNotHasKey('id', $messages);
     }
+
+    public function testFunctionMakeIsIdenticalToConstructor(): void
+    {
+        // Arrange
+        $message = 'Test';
+        $closure = function (Builder $builder) {
+            return $builder->where('user_id', 6);
+        };
+
+        // Act
+        $rule1 = UniqueEloquent::make(User::class, 'other_id', $closure)->withMessage($message);
+        $rule2 = (new UniqueEloquent(User::class, 'other_id', $closure))->withMessage($message);
+
+        // Assert
+        $this->assertEquals($rule1, $rule2);
+    }
+
+    public function testUuidOptionSkipsValidationIfValueIsNotUuid(): void
+    {
+        // Arrange
+        $validator = Validator::make([
+            'id' => 'not-a-uuid',
+        ], [
+            'id' => [(new UniqueEloquent(User::class))->uuid()]
+        ]);
+        $this->db->enableQueryLog();
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $queryLog = $this->db->getQueryLog();
+        $this->assertCount(0, $queryLog);
+        $this->assertTrue($isValid);
+        $this->assertArrayNotHasKey('id', $messages);
+    }
+
+    public function testUuidOptionSkipsValidationIfValueIsNotString(): void
+    {
+        // Arrange
+        $validator = Validator::make([
+            'id' => 1,
+        ], [
+            'id' => [(new UniqueEloquent(User::class))->uuid()]
+        ]);
+        $this->db->enableQueryLog();
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $queryLog = $this->db->getQueryLog();
+        $this->assertCount(0, $queryLog);
+        $this->assertTrue($isValid);
+        $this->assertArrayNotHasKey('id', $messages);
+    }
 }
