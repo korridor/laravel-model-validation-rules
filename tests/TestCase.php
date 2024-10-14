@@ -6,6 +6,7 @@ namespace Korridor\LaravelModelValidationRules\Tests;
 
 use Illuminate\Container\Container;
 use Illuminate\Database\Capsule\Manager;
+use Illuminate\Database\Connection;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Foundation\Application;
@@ -14,6 +15,8 @@ use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
 {
+    protected Connection $db;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -57,5 +60,6 @@ abstract class TestCase extends Orchestra
             $table->softDeletes();
             $table->timestamps();
         });
+        $this->db = $manager->getConnection();
     }
 }

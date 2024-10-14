@@ -6,6 +6,7 @@ namespace Korridor\LaravelModelValidationRules\Tests\Feature;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -30,12 +31,15 @@ class ExistsEloquentTest extends TestCase
         ], [
             'id' => [new ExistsEloquent(User::class)]
         ]);
+        $this->db->enableQueryLog();
 
         // Act
         $isValid = $validator->passes();
         $messages = $validator->messages()->toArray();
 
         // Assert
+        $queryLog = $this->db->getQueryLog();
+        $this->assertCount(1, $queryLog);
         $this->assertFalse($isValid);
         $this->assertEquals('The resource does not exist.', $messages['id'][0]);
     }
@@ -404,5 +408,63 @@ class ExistsEloquentTest extends TestCase
         // Assert
         $this->assertFalse($isValid);
         $this->assertEquals('A user with the id "1" does not exist. / Test', $messages['id'][0]);
+    }
+
+    public function testFunctionMakeIsIdenticalToConstructor(): void
+    {
+        // Arrange
+        $message = 'Test';
+        $closure = function (Builder $builder) {
+            return $builder->where('user_id', 6);
+        };
+
+        // Act
+        $rule1 = ExistsEloquent::make(User::class, 'other_id', $closure)->withMessage($message);
+        $rule2 = (new ExistsEloquent(User::class, 'other_id', $closure))->withMessage($message);
+
+        // Assert
+        $this->assertEquals($rule1, $rule2);
+    }
+
+    public function testUuidOptionMakesRuleFailIfValueIsNotUuidBeforeQueryingTheDatabase(): void
+    {
+        // Arrange
+        $validator = Validator::make([
+            'id' => 'not-a-uuid',
+        ], [
+            'id' => [(new ExistsEloquent(User::class))->uuid()]
+        ]);
+        $this->db->enableQueryLog();
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $queryLog = $this->db->getQueryLog();
+        $this->assertCount(0, $queryLog);
+        $this->assertFalse($isValid);
+        $this->assertEquals('The resource does not exist.', $messages['id'][0]);
+    }
+
+    public function testUuidOptionMakesRuleFailIfValueIsNotStringBeforeQueryingTheDatabase(): void
+    {
+        // Arrange
+        $validator = Validator::make([
+            'id' => 1,
+        ], [
+            'id' => [(new ExistsEloquent(User::class))->uuid()]
+        ]);
+        $this->db->enableQueryLog();
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $queryLog = $this->db->getQueryLog();
+        $this->assertCount(0, $queryLog);
+        $this->assertFalse($isValid);
+        $this->assertEquals('The resource does not exist.', $messages['id'][0]);
     }
 }

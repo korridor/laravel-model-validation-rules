@@ -8,6 +8,7 @@ use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class UniqueEloquent implements ValidationRule
 {
@@ -64,11 +65,16 @@ class UniqueEloquent implements ValidationRule
     private bool $includeSoftDeleted = false;
 
     /**
+     * @var bool Whether the ID is a UUID
+     */
+    private bool $isFieldUuid = false;
+
+    /**
      * UniqueEloquent constructor.
      *
-     * @param  class-string<Model> $model Class name of model.
-     * @param  string|null  $key Relevant key in the model.
-     * @param  Closure|null  $builderClosure Closure that can extend the eloquent builder
+     * @param class-string<Model> $model Class name of model.
+     * @param string|null $key Relevant key in the model.
+     * @param Closure|null $builderClosure Closure that can extend the eloquent builder
      */
     public function __construct(string $model, ?string $key = null, ?Closure $builderClosure = null)
     {
@@ -78,16 +84,31 @@ class UniqueEloquent implements ValidationRule
     }
 
     /**
+     * @param class-string<Model> $model Class name of model.
+     * @param string|null $key Relevant key in the model.
+     * @param Closure|null $builderClosure Closure that can extend the eloquent builder
+     */
+    public static function make(string $model, ?string $key = null, ?Closure $builderClosure = null): self
+    {
+        return new self($model, $key, $builderClosure);
+    }
+
+    /**
      * Determine if the validation rule passes.
      *
-     * @param  string  $attribute
-     * @param  mixed  $value
-     * @param  Closure  $fail
+     * @param string $attribute
+     * @param mixed $value
+     * @param Closure $fail
      *
      * @return void
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+        if ($this->isFieldUuid) {
+            if (!is_string($value) || !Str::isUuid($value)) {
+                return;
+            }
+        }
         /** @var Model|Builder $builder */
         $builder = new $this->model();
         $modelKeyName = $builder->getKeyName();
@@ -112,11 +133,12 @@ class UniqueEloquent implements ValidationRule
             if ($this->customMessage !== null) {
                 $fail($this->customMessage);
             } else {
-                $fail($this->customMessageTranslationKey ?? 'modelValidationRules::validation.unique_model')->translate([
-                    'attribute' => $attribute,
-                    'model' => strtolower(class_basename($this->model)),
-                    'value' => $value,
-                ]);
+                $fail($this->customMessageTranslationKey ?? 'modelValidationRules::validation.unique_model')
+                    ->translate([
+                        'attribute' => $attribute,
+                        'model' => strtolower(class_basename($this->model)),
+                        'value' => $value,
+                    ]);
             }
         }
     }
@@ -124,7 +146,7 @@ class UniqueEloquent implements ValidationRule
     /**
      * Set a custom validation message.
      *
-     * @param  string  $message
+     * @param string $message
      * @return $this
      */
     public function withMessage(string $message): self
@@ -137,7 +159,7 @@ class UniqueEloquent implements ValidationRule
     /**
      * Set a translated custom validation message.
      *
-     * @param  string  $translationKey
+     * @param string $translationKey
      * @return $this
      */
     public function withCustomTranslation(string $translationKey): self
@@ -150,7 +172,7 @@ class UniqueEloquent implements ValidationRule
     /**
      * Set a closure that can extend the eloquent builder.
      *
-     * @param  Closure|null  $builderClosure
+     * @param Closure|null $builderClosure
      */
     public function setBuilderClosure(?Closure $builderClosure): void
     {
@@ -158,7 +180,7 @@ class UniqueEloquent implements ValidationRule
     }
 
     /**
-     * @param  Closure  $builderClosure
+     * @param Closure $builderClosure
      * @return $this
      */
     public function query(Closure $builderClosure): self
@@ -169,8 +191,8 @@ class UniqueEloquent implements ValidationRule
     }
 
     /**
-     * @param  mixed  $id
-     * @param  string|null  $column
+     * @param mixed $id
+     * @param string|null $column
      */
     public function setIgnore(mixed $id, ?string $column = null): void
     {
@@ -180,7 +202,7 @@ class UniqueEloquent implements ValidationRule
 
     /**
      * @param mixed $id
-     * @param  string|null  $column
+     * @param string|null $column
      * @return UniqueEloquent
      */
     public function ignore(mixed $id, ?string $column = null): self
@@ -199,6 +221,20 @@ class UniqueEloquent implements ValidationRule
     public function setIncludeSoftDeleted(bool $includeSoftDeleted): void
     {
         $this->includeSoftDeleted = $includeSoftDeleted;
+    }
+
+    /**
+     * The field has the data type UUID.
+     * If a value is not a UUID, the validation will be skipped.
+     * This is useful for example for Postgres databases where queries fail if a field with UUID data type is queried with a non-UUID value.
+     *
+     * @return $this
+     */
+    public function uuid(): self
+    {
+        $this->isFieldUuid = true;
+
+        return $this;
     }
 
     /**
