@@ -5,6 +5,7 @@ on: [ push ]
 jobs:
   PHPUnit:
     strategy:
+      fail-fast: false
       matrix:
         include:
             # Laravel 10.*
@@ -49,16 +50,6 @@ jobs:
                 testbench: 9.*
                 phpunit-config: 'phpunit.xml'
                 composer-flag: '--prefer-stable'
-            -   php: 8.2
-                laravel: 11.*
-                testbench: 9.*
-                phpunit-config: 'phpunit.xml'
-                composer-flag: '--prefer-lowest'
-            -   php: 8.2
-                laravel: 11.*
-                testbench: 9.*
-                phpunit-config: 'phpunit.xml'
-                composer-flag: '--prefer-lowest'
             -   php: 8.4
                 laravel: 11.*
                 testbench: 9.*
@@ -93,6 +84,27 @@ jobs:
             -   php: 8.4
                 laravel: 12.*
                 testbench: 10.*
+                phpunit-config: 'phpunit.xml'
+                composer-flag: '--prefer-lowest'
+            # Laravel 13.*
+            -   php: 8.3
+                laravel: 13.*
+                testbench: 11.*
+                phpunit-config: 'phpunit.xml'
+                composer-flag: '--prefer-stable'
+            -   php: 8.4
+                laravel: 13.*
+                testbench: 11.*
+                phpunit-config: 'phpunit.xml'
+                composer-flag: '--prefer-stable'
+            -   php: 8.3
+                laravel: 13.*
+                testbench: 11.*
+                phpunit-config: 'phpunit.xml'
+                composer-flag: '--prefer-lowest'
+            -   php: 8.4
+                laravel: 13.*
+                testbench: 11.*
                 phpunit-config: 'phpunit.xml'
                 composer-flag: '--prefer-lowest'
     runs-on: ubuntu-latest
