@@ -20,7 +20,7 @@ class Fact extends Model
     protected $guarded = [];
 
     /**
-     * @return BelongsTo<User>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

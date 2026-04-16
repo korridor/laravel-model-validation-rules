@@ -6,7 +6,6 @@ namespace Korridor\LaravelModelValidationRules\Rules;
 
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -109,7 +108,7 @@ class UniqueEloquent implements ValidationRule
                 return;
             }
         }
-        /** @var Model|Builder $builder */
+        /** @var Model $builder */
         $builder = new $this->model();
         $modelKeyName = $builder->getKeyName();
         $builder = $builder->where(null === $this->key ? $modelKeyName : $this->key, $value);
