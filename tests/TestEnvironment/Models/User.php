@@ -20,9 +20,9 @@ class User extends Model
     protected $guarded = [];
 
     /**
-     * @return HasMany<Fact>
+     * @return HasMany<Fact, $this>
      */
-    public function user(): HasMany
+    public function facts(): HasMany
     {
         return $this->hasMany(Fact::class);
     }

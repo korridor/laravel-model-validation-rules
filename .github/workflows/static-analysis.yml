@@ -1,0 +1,35 @@
+name: Static Analysis
+
+on: [ push ]
+
+jobs:
+    PHPUnit:
+        strategy:
+            matrix:
+                include:
+                    # Laravel 13.*
+                    -   php: 8.4
+                        testbench: 11.*
+                        laravel: 13.*
+                        composer-flag: '--prefer-stable'
+
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v6
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  extensions: curl, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, iconv
+                  coverage: none
+
+            - name: Install dependencies
+              run: composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+
+            - name: Update dependencies
+              run: composer update ${{ matrix.composer-flag }} --prefer-dist --no-interaction
+
+            - name: Run PhpStan
+              run: composer analyse

@@ -119,6 +119,9 @@ jobs:
             extensions: curl, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, iconv
             coverage: xdebug
 
+      - name: Remove larastan
+        run: composer remove --dev larastan/larastan
+
       - name: Install dependencies
         run: composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
 
