@@ -338,6 +338,9 @@ class UniqueEloquentTest extends TestCase
     {
         // Arrange
         Lang::addLines([
+            'validation.attributes.id' => 'identifier',
+        ], Lang::getLocale());
+        Lang::addLines([
             'validation.unique_model' => 'A :model with the :attribute ":value" already exists.',
         ], Lang::getLocale(), 'modelValidationRules');
         User::query()->create([
@@ -361,7 +364,7 @@ class UniqueEloquentTest extends TestCase
 
         // Assert
         $this->assertFalse($isValid);
-        $this->assertEquals('A user with the id "2" already exists.', $messages['id'][0]);
+        $this->assertEquals('A user with the identifier "2" already exists.', $messages['id'][0]);
     }
 
     public function testValidationMessageIsFromCustomValidationMessagePropertyIfItHasBeenSet(): void
@@ -397,6 +400,7 @@ class UniqueEloquentTest extends TestCase
     {
         // Arrange
         Lang::addLines([
+            'validation.attributes.id' => 'identifier',
             'validation.custom.user_already_exists' => 'A :model with the :attribute ":value" already exists. / Test',
         ], Lang::getLocale());
         User::query()->create([
@@ -421,7 +425,104 @@ class UniqueEloquentTest extends TestCase
 
         // Assert
         $this->assertFalse($isValid);
-        $this->assertEquals('A user with the id "2" already exists. / Test', $messages['id'][0]);
+        $this->assertEquals('A user with the identifier "2" already exists. / Test', $messages['id'][0]);
+    }
+
+    public function testValidationMessageIsFromLaravelLanguageSupportWithParametersIfNoCustomValidationMessageAndNoAttributeTranslationIsSet(): void
+    {
+        // Arrange
+        Lang::addLines([
+            'validation.unique_model' => 'A :model with the :attribute ":value" already exists.',
+        ], Lang::getLocale(), 'modelValidationRules');
+        User::query()->create([
+            'id' => 2,
+            'name' => 'Testname',
+            'email' => 'name@test.com',
+            'password' => bcrypt('secret'),
+            'remember_token' => Str::random(10),
+        ]);
+        $validator = Validator::make([
+            'id' => 2,
+        ], [
+            'id' => [
+                new UniqueEloquent(User::class)
+            ]
+        ]);
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $this->assertFalse($isValid);
+        $this->assertEquals('A user with the id "2" already exists.', $messages['id'][0]);
+    }
+
+    public function testValidationMessageUsesCustomAttributeNameIfSetInValidator(): void
+    {
+        // Arrange
+        Lang::addLines([
+            'validation.unique_model' => 'A :model with the :attribute ":value" already exists.',
+        ], Lang::getLocale(), 'modelValidationRules');
+        User::query()->create([
+            'id' => 2,
+            'name' => 'Testname',
+            'email' => 'name@test.com',
+            'password' => bcrypt('secret'),
+            'remember_token' => Str::random(10),
+        ]);
+        $validator = Validator::make([
+            'id' => 2,
+        ], [
+            'id' => [
+                new UniqueEloquent(User::class)
+            ]
+        ], [], [
+            'id' => 'user number',
+        ]);
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $this->assertFalse($isValid);
+        $this->assertEquals('A user with the user number "2" already exists.', $messages['id'][0]);
+    }
+
+    public function testValidationMessageUsesAttributeTranslationForWildcardAttribute(): void
+    {
+        // Arrange
+        Lang::addLines([
+            'validation.attributes.users.*.id' => 'user number',
+        ], Lang::getLocale());
+        Lang::addLines([
+            'validation.unique_model' => 'A :model with the :attribute ":value" already exists.',
+        ], Lang::getLocale(), 'modelValidationRules');
+        User::query()->create([
+            'id' => 2,
+            'name' => 'Testname',
+            'email' => 'name@test.com',
+            'password' => bcrypt('secret'),
+            'remember_token' => Str::random(10),
+        ]);
+        $validator = Validator::make([
+            'users' => [
+                ['id' => 2],
+            ],
+        ], [
+            'users.*.id' => [
+                new UniqueEloquent(User::class)
+            ]
+        ]);
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $this->assertFalse($isValid);
+        $this->assertEquals('A user with the user number "2" already exists.', $messages['users.0.id'][0]);
     }
 
     /*

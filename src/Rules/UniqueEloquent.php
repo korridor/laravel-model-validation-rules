@@ -132,9 +132,9 @@ class UniqueEloquent implements ValidationRule
             if ($this->customMessage !== null) {
                 $fail($this->customMessage);
             } else {
+                // The :attribute placeholder is left for the validator, so custom attribute names are respected.
                 $fail($this->customMessageTranslationKey ?? 'modelValidationRules::validation.unique_model')
                     ->translate([
-                        'attribute' => $attribute,
                         'model' => strtolower(class_basename($this->model)),
                         'value' => $value,
                     ]);

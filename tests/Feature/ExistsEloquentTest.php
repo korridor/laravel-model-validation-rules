@@ -6,7 +6,6 @@ namespace Korridor\LaravelModelValidationRules\Tests\Feature;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -340,6 +339,9 @@ class ExistsEloquentTest extends TestCase
     {
         // Arrange
         Lang::addLines([
+            'validation.attributes.id' => 'identifier',
+        ], Lang::getLocale());
+        Lang::addLines([
             'validation.exists_model' => 'A :model with the :attribute ":value" does not exist.',
         ], Lang::getLocale(), 'modelValidationRules');
         $validator = Validator::make([
@@ -354,7 +356,7 @@ class ExistsEloquentTest extends TestCase
 
         // Assert
         $this->assertFalse($isValid);
-        $this->assertEquals('A user with the id "2" does not exist.', $messages['id'][0]);
+        $this->assertEquals('A user with the identifier "2" does not exist.', $messages['id'][0]);
     }
 
     public function testValidationMessageIsFromCustomValidationMessagePropertyIfItHasBeenSet(): void
@@ -390,6 +392,7 @@ class ExistsEloquentTest extends TestCase
     {
         // Arrange
         Lang::addLines([
+            'validation.attributes.id' => 'identifier',
             'validation.custom.user_already_exists' => 'A :model with the :attribute ":value" does not exist. / Test',
         ], Lang::getLocale());
         $validator = Validator::make([
@@ -407,7 +410,77 @@ class ExistsEloquentTest extends TestCase
 
         // Assert
         $this->assertFalse($isValid);
-        $this->assertEquals('A user with the id "1" does not exist. / Test', $messages['id'][0]);
+        $this->assertEquals('A user with the identifier "1" does not exist. / Test', $messages['id'][0]);
+    }
+
+    public function testValidationMessageIsFromLaravelLanguageSupportWithParametersIfNoCustomValidationMessageAndNoAttributeTranslationIsSet(): void
+    {
+        // Arrange
+        Lang::addLines([
+            'validation.exists_model' => 'A :model with the :attribute ":value" does not exist.',
+        ], Lang::getLocale(), 'modelValidationRules');
+        $validator = Validator::make([
+            'id' => 2,
+        ], [
+            'id' => [new ExistsEloquent(User::class)]
+        ]);
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $this->assertFalse($isValid);
+        $this->assertEquals('A user with the id "2" does not exist.', $messages['id'][0]);
+    }
+
+    public function testValidationMessageUsesCustomAttributeNameIfSetInValidator(): void
+    {
+        // Arrange
+        Lang::addLines([
+            'validation.exists_model' => 'A :model with the :attribute ":value" does not exist.',
+        ], Lang::getLocale(), 'modelValidationRules');
+        $validator = Validator::make([
+            'id' => 2,
+        ], [
+            'id' => [new ExistsEloquent(User::class)]
+        ], [], [
+            'id' => 'user number',
+        ]);
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $this->assertFalse($isValid);
+        $this->assertEquals('A user with the user number "2" does not exist.', $messages['id'][0]);
+    }
+
+    public function testValidationMessageUsesAttributeTranslationForWildcardAttribute(): void
+    {
+        // Arrange
+        Lang::addLines([
+            'validation.attributes.users.*.id' => 'user number',
+        ], Lang::getLocale());
+        Lang::addLines([
+            'validation.exists_model' => 'A :model with the :attribute ":value" does not exist.',
+        ], Lang::getLocale(), 'modelValidationRules');
+        $validator = Validator::make([
+            'users' => [
+                ['id' => 2],
+            ],
+        ], [
+            'users.*.id' => [new ExistsEloquent(User::class)]
+        ]);
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $this->assertFalse($isValid);
+        $this->assertEquals('A user with the user number "2" does not exist.', $messages['users.0.id'][0]);
     }
 
     public function testFunctionMakeIsIdenticalToConstructor(): void
