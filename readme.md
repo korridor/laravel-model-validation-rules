@@ -96,6 +96,7 @@ public function rules(): array
 
 ### Notes on the query builder closure and input values
 
+ - The `where` clauses added in the builder closure are grouped, so an `orWhere(...)` in the closure can not bypass the constraint on the validated value.
  - The closure should return the builder, but if it modifies the builder without returning it, the modified builder is used.
  - Arrays and objects (other than backed enums) are rejected: the validation fails without querying the database. Use `field.*` rules to validate each element of an array.
 

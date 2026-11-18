@@ -598,6 +598,72 @@ class ExistsEloquentTest extends TestCase
      * Tests for the grouping and return value of the builder closure
      */
 
+    public function testOrWhereInBuilderClosureCanNotBypassKeyConstraint(): void
+    {
+        // Arrange
+        User::create([
+            'id' => 6,
+            'other_id' => null,
+            'name' => 'Testname',
+            'email' => 'name@test.com',
+            'password' => bcrypt('secret'),
+            'remember_token' => Str::random(10),
+        ]);
+        Fact::create([
+            'id' => 1,
+            'user_id' => 6,
+            'type' => 'type1',
+            'description' => 'Long desc',
+        ]);
+        $validator = Validator::make([
+            'id' => 12345,
+        ], [
+            'id' => [new ExistsEloquent(Fact::class, null, function (Builder $builder) {
+                return $builder->where('user_id', 6)->orWhere('type', 'type1');
+            })]
+        ]);
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $this->assertFalse($isValid);
+        $this->assertEquals('The resource does not exist.', $messages['id'][0]);
+    }
+
+    public function testOrWhereInBuilderClosureIsAppliedWithinGroup(): void
+    {
+        // Arrange
+        User::create([
+            'id' => 6,
+            'other_id' => null,
+            'name' => 'Testname',
+            'email' => 'name@test.com',
+            'password' => bcrypt('secret'),
+            'remember_token' => Str::random(10),
+        ]);
+        Fact::create([
+            'id' => 1,
+            'user_id' => 6,
+            'type' => 'type1',
+            'description' => 'Long desc',
+        ]);
+        $validator = Validator::make([
+            'id' => 1,
+        ], [
+            'id' => [new ExistsEloquent(Fact::class, null, function (Builder $builder) {
+                return $builder->where('user_id', 7)->orWhere('type', 'type1');
+            })]
+        ]);
+
+        // Act
+        $isValid = $validator->passes();
+
+        // Assert
+        $this->assertTrue($isValid);
+    }
+
     public function testBuilderClosureWithoutReturnValueIsApplied(): void
     {
         // Arrange
