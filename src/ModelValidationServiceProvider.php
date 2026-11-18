@@ -24,8 +24,8 @@ class ModelValidationServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes([
-            __DIR__ . '/../resources/lang' => resource_path('lang/vendor/modelValidationRules'),
-        ]);
+            __DIR__ . '/../resources/lang' => lang_path('vendor/modelValidationRules'),
+        ], 'model-validation-rules-translations');
         $this->loadTranslationsFrom(__DIR__ . '/../resources/lang/', 'modelValidationRules');
     }
 }
