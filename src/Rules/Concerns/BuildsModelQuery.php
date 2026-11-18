@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Korridor\LaravelModelValidationRules\Rules\Concerns;
 
 use BackedEnum;
+use Closure;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Shared query building logic for the Eloquent validation rules.
@@ -33,5 +36,29 @@ trait BuildsModelQuery
         }
 
         return is_scalar($value) ? (string) $value : '';
+    }
+
+    /**
+     * Create a new query for the model, with the builder closure applied.
+     *
+     * @param  class-string<Model>  $model
+     * @return Builder<Model>
+     */
+    private function newModelQuery(string $model, ?Closure $builderClosure): Builder
+    {
+        /** @var Builder<Model> $builder */
+        $builder = (new $model())->newQuery();
+
+        if ($builderClosure === null) {
+            return $builder;
+        }
+
+        $result = $builderClosure($builder);
+        if ($result instanceof Builder) {
+            /** @var Builder<Model> $result */
+            $builder = $result;
+        }
+
+        return $builder;
     }
 }
