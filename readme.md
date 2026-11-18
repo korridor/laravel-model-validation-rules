@@ -137,10 +137,10 @@ public function rules(): array
 ### Customize default validation message
 
 If you want to customize the translations of the default validation errors you can publish the translations
-of the package to the `resources/lang/vendor/modelValidationRules` folder.
+of the package to the `lang/vendor/modelValidationRules` folder.
 
 ```bash
-php artisan vendor:publish --provider="Korridor\LaravelModelValidationRules\ModelValidationServiceProvider"
+php artisan vendor:publish --tag=model-validation-rules-translations
 ```
 
 You can use the following attributes in the validation message:
