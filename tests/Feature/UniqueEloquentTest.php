@@ -691,4 +691,36 @@ class UniqueEloquentTest extends TestCase
         $this->assertFalse($isValid);
         $this->assertEquals('The resource already exists.', $messages['email'][0]);
     }
+
+    /*
+     * Tests for the grouping and return value of the builder closure
+     */
+
+    public function testBuilderClosureWithoutReturnValueIsApplied(): void
+    {
+        // Arrange
+        User::create([
+            'id' => 1,
+            'other_id' => null,
+            'name' => 'Testname',
+            'email' => 'name@test.com',
+            'password' => bcrypt('secret'),
+            'remember_token' => Str::random(10),
+        ]);
+        $validator = Validator::make([
+            'email' => 'name@test.com',
+        ], [
+            'email' => [new UniqueEloquent(User::class, 'email', function (Builder $builder): void {
+                $builder->where('name', 'Different');
+            })]
+        ]);
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $this->assertTrue($isValid);
+        $this->assertArrayNotHasKey('email', $messages);
+    }
 }

@@ -593,4 +593,42 @@ class ExistsEloquentTest extends TestCase
         $this->assertFalse($isValid);
         $this->assertEquals('A user with the id "" does not exist.', $messages['id'][0]);
     }
+
+    /*
+     * Tests for the grouping and return value of the builder closure
+     */
+
+    public function testBuilderClosureWithoutReturnValueIsApplied(): void
+    {
+        // Arrange
+        User::create([
+            'id' => 6,
+            'other_id' => null,
+            'name' => 'Testname',
+            'email' => 'name@test.com',
+            'password' => bcrypt('secret'),
+            'remember_token' => Str::random(10),
+        ]);
+        Fact::create([
+            'id' => 1,
+            'user_id' => 6,
+            'type' => 'type1',
+            'description' => 'Long desc',
+        ]);
+        $validator = Validator::make([
+            'id' => 1,
+        ], [
+            'id' => [new ExistsEloquent(Fact::class, null, function (Builder $builder): void {
+                $builder->where('user_id', 7);
+            })]
+        ]);
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $this->assertFalse($isValid);
+        $this->assertEquals('The resource does not exist.', $messages['id'][0]);
+    }
 }

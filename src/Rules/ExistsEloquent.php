@@ -7,6 +7,7 @@ namespace Korridor\LaravelModelValidationRules\Rules;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 use Korridor\LaravelModelValidationRules\Rules\Concerns\BuildsModelQuery;
 
@@ -148,21 +149,11 @@ class ExistsEloquent implements ValidationRule
                 return;
             }
         }
-        /** @var Model $builder */
-        $builder = new $this->model();
-        $modelKeyName = $builder->getKeyName();
-        if (null === $this->key) {
-            $builder = $builder->where($modelKeyName, $value);
-        } else {
-            $builder = $builder->where($this->key, $value);
-        }
-        if (null !== $this->builderClosure) {
-            $builderClosure = $this->builderClosure;
-            $builder = $builderClosure($builder);
-        }
+        $builder = $this->newModelQuery($this->model, $this->builderClosure);
+        $builder->where($this->key ?? $builder->getModel()->getKeyName(), $value);
 
         if ($this->includeSoftDeleted) {
-            $builder = $builder->withTrashed();
+            $builder->withoutGlobalScope(SoftDeletingScope::class);
         }
 
         if ($builder->doesntExist()) {

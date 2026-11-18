@@ -7,6 +7,7 @@ namespace Korridor\LaravelModelValidationRules\Rules;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 use Korridor\LaravelModelValidationRules\Rules\Concerns\BuildsModelQuery;
 
@@ -115,16 +116,11 @@ class UniqueEloquent implements ValidationRule
                 return;
             }
         }
-        /** @var Model $builder */
-        $builder = new $this->model();
-        $modelKeyName = $builder->getKeyName();
-        $builder = $builder->where(null === $this->key ? $modelKeyName : $this->key, $value);
-        if (null !== $this->builderClosure) {
-            $builderClosure = $this->builderClosure;
-            $builder = $builderClosure($builder);
-        }
+        $builder = $this->newModelQuery($this->model, $this->builderClosure);
+        $modelKeyName = $builder->getModel()->getKeyName();
+        $builder->where($this->key ?? $modelKeyName, $value);
         if (null !== $this->ignoreId) {
-            $builder = $builder->where(
+            $builder->where(
                 null === $this->ignoreColumn ? $modelKeyName : $this->ignoreColumn,
                 '!=',
                 $this->ignoreId
@@ -132,7 +128,7 @@ class UniqueEloquent implements ValidationRule
         }
 
         if ($this->includeSoftDeleted) {
-            $builder = $builder->withTrashed();
+            $builder->withoutGlobalScope(SoftDeletingScope::class);
         }
 
         if ($builder->exists()) {
