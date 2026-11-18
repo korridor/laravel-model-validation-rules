@@ -1,6 +1,7 @@
 /tests              export-ignore
 /phpunit.xml        export-ignore
-/phpunit.xml.old    export-ignore
+/phpunit-10.xml     export-ignore
+/phpstan.neon       export-ignore
 /phpcs.xml          export-ignore
 /docker             export-ignore
 /.php-cs-fixer.php   export-ignore
