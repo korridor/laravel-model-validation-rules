@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Korridor\LaravelModelValidationRules\Rules\ExistsEloquent;
 use Korridor\LaravelModelValidationRules\Tests\TestCase;
+use Korridor\LaravelModelValidationRules\Tests\TestEnvironment\Enums\FactType;
 use Korridor\LaravelModelValidationRules\Tests\TestEnvironment\Models\Fact;
 use Korridor\LaravelModelValidationRules\Tests\TestEnvironment\Models\User;
 
@@ -592,6 +593,55 @@ class ExistsEloquentTest extends TestCase
         // Assert
         $this->assertFalse($isValid);
         $this->assertEquals('A user with the id "" does not exist.', $messages['id'][0]);
+    }
+
+    public function testValidationPassesIfValueIsBackedEnumOfExistingEntry(): void
+    {
+        // Arrange
+        Fact::create([
+            'id' => 1,
+            'user_id' => 6,
+            'type' => 'type1',
+            'description' => 'Long desc',
+        ]);
+        $validator = Validator::make([
+            'type' => FactType::Type1,
+        ], [
+            'type' => [new ExistsEloquent(Fact::class, 'type')]
+        ]);
+
+        // Act
+        $isValid = $validator->passes();
+
+        // Assert
+        $this->assertTrue($isValid);
+    }
+
+    public function testValidationMessageContainsBackingValueIfValueIsBackedEnum(): void
+    {
+        // Arrange
+        Lang::addLines([
+            'validation.exists_model' => 'A :model with the :attribute ":value" does not exist.',
+        ], Lang::getLocale(), 'modelValidationRules');
+        Fact::create([
+            'id' => 1,
+            'user_id' => 6,
+            'type' => 'type1',
+            'description' => 'Long desc',
+        ]);
+        $validator = Validator::make([
+            'type' => FactType::Type2,
+        ], [
+            'type' => [new ExistsEloquent(Fact::class, 'type')]
+        ]);
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $this->assertFalse($isValid);
+        $this->assertEquals('A fact with the type "type2" does not exist.', $messages['type'][0]);
     }
 
     /*
