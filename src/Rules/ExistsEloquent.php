@@ -137,7 +137,7 @@ class ExistsEloquent implements ValidationRule
     {
         if ($this->isFieldUuid) {
             if (!is_string($value) || !Str::isUuid($value)) {
-                $this->fail($attribute, $value, $fail);
+                $this->fail($value, $fail);
                 return;
             }
         }
@@ -159,21 +159,22 @@ class ExistsEloquent implements ValidationRule
         }
 
         if ($builder->doesntExist()) {
-            $this->fail($attribute, $value, $fail);
+            $this->fail($value, $fail);
             return;
         }
     }
 
-    private function fail(string $attribute, mixed $value, Closure $fail): void
+    private function fail(mixed $value, Closure $fail): void
     {
         if ($this->customMessage !== null) {
             $fail($this->customMessage);
         } else {
-            $fail($this->customMessageTranslationKey ?? 'modelValidationRules::validation.exists_model')->translate([
-                'attribute' => $attribute,
-                'model'     => strtolower(class_basename($this->model)),
-                'value'     => $value,
-            ]);
+            // The :attribute placeholder is left for the validator, so custom attribute names are respected.
+            $fail($this->customMessageTranslationKey ?? 'modelValidationRules::validation.exists_model')
+                ->translate([
+                    'model' => strtolower(class_basename($this->model)),
+                    'value' => $value,
+                ]);
         }
     }
 
