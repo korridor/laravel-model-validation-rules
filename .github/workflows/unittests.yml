@@ -119,6 +119,11 @@ jobs:
             extensions: curl, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, iconv
             coverage: xdebug
 
+      # Laravel 10 and 11 are EOL and every release has open security advisories,
+      # which Composer blocks by default. Allow them so the supported versions can still be tested.
+      - name: Allow packages with security advisories
+        run: composer config policy.advisories.block false
+
       - name: Remove larastan
         run: composer remove --dev larastan/larastan
 
