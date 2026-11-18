@@ -8,9 +8,12 @@ use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Korridor\LaravelModelValidationRules\Rules\Concerns\BuildsModelQuery;
 
 class ExistsEloquent implements ValidationRule
 {
+    use BuildsModelQuery;
+
     /**
      * Class name of model.
      *
@@ -135,6 +138,10 @@ class ExistsEloquent implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+        if (!$this->isQueryableValue($value)) {
+            $this->fail($value, $fail);
+            return;
+        }
         if ($this->isFieldUuid) {
             if (!is_string($value) || !Str::isUuid($value)) {
                 $this->fail($value, $fail);
@@ -173,7 +180,7 @@ class ExistsEloquent implements ValidationRule
             $fail($this->customMessageTranslationKey ?? 'modelValidationRules::validation.exists_model')
                 ->translate([
                     'model' => strtolower(class_basename($this->model)),
-                    'value' => $value,
+                    'value' => $this->messageValue($value),
                 ]);
         }
     }

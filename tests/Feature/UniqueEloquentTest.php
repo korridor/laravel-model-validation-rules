@@ -659,4 +659,36 @@ class UniqueEloquentTest extends TestCase
         $this->assertTrue($isValid);
         $this->assertArrayNotHasKey('id', $messages);
     }
+
+    /*
+     * Tests for input values that are not scalar
+     */
+
+    public function testValidationFailsIfValueIsArrayEvenIfFirstElementIsUnique(): void
+    {
+        // Arrange
+        User::create([
+            'id' => 1,
+            'other_id' => null,
+            'name' => 'Testname',
+            'email' => 'name@test.com',
+            'password' => bcrypt('secret'),
+            'remember_token' => Str::random(10),
+        ]);
+        $validator = Validator::make([
+            'email' => ['new@test.com', 'name@test.com'],
+        ], [
+            'email' => [new UniqueEloquent(User::class, 'email')]
+        ]);
+        $this->db->enableQueryLog();
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $this->assertCount(0, $this->db->getQueryLog());
+        $this->assertFalse($isValid);
+        $this->assertEquals('The resource already exists.', $messages['email'][0]);
+    }
 }

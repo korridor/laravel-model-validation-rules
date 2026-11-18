@@ -94,6 +94,10 @@ public function rules(): array
 }
 ```
 
+### Notes on input values
+
+ - Arrays and objects (other than backed enums) are rejected: the validation fails without querying the database. Use `field.*` rules to validate each element of an array.
+
 ### Custom validation message
 
 If you want to change the validation message for one specific case, you can use the `withMessage(...)` function to add a custom validation message.
