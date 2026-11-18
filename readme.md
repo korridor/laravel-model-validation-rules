@@ -80,7 +80,7 @@ public function rules(): array
     
     return [
         'id' => [new ExistsEloquent(Post::class)],
-        'username' => [(new UniqueEloquent(User::class, 'username'))->ignore($postId)],
+        'username' => [(new UniqueEloquent(User::class, 'username'))->ignore($this->user()->id)],
         'title' => ['string'],
         'content' => ['string'],
         'comments.*.id' => [
@@ -118,7 +118,7 @@ public function rules(): array
         'id' => [(new ExistsEloquent(Post::class))->withMessage('The ID already exists.')],
         'username' => [
             (new UniqueEloquent(User::class, 'username'))
-                ->ignore($postId)
+                ->ignore($this->user()->id)
                 ->withCustomTranslation('validation.custom.username.unique_eloquent')
         ],
         'title' => ['string'],
