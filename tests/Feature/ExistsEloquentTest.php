@@ -540,4 +540,57 @@ class ExistsEloquentTest extends TestCase
         $this->assertFalse($isValid);
         $this->assertEquals('The resource does not exist.', $messages['id'][0]);
     }
+
+    /*
+     * Tests for input values that are not scalar
+     */
+
+    public function testValidationFailsIfValueIsArrayEvenIfFirstElementExists(): void
+    {
+        // Arrange
+        User::create([
+            'id' => 1,
+            'other_id' => null,
+            'name' => 'Testname',
+            'email' => 'name@test.com',
+            'password' => bcrypt('secret'),
+            'remember_token' => Str::random(10),
+        ]);
+        $validator = Validator::make([
+            'id' => [1, 999],
+        ], [
+            'id' => [new ExistsEloquent(User::class)]
+        ]);
+        $this->db->enableQueryLog();
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $this->assertCount(0, $this->db->getQueryLog());
+        $this->assertFalse($isValid);
+        $this->assertEquals('The resource does not exist.', $messages['id'][0]);
+    }
+
+    public function testValidationMessageWithValuePlaceholderDoesNotThrowIfValueIsArray(): void
+    {
+        // Arrange
+        Lang::addLines([
+            'validation.exists_model' => 'A :model with the :attribute ":value" does not exist.',
+        ], Lang::getLocale(), 'modelValidationRules');
+        $validator = Validator::make([
+            'id' => [999],
+        ], [
+            'id' => [new ExistsEloquent(User::class)]
+        ]);
+
+        // Act
+        $isValid = $validator->passes();
+        $messages = $validator->messages()->toArray();
+
+        // Assert
+        $this->assertFalse($isValid);
+        $this->assertEquals('A user with the id "" does not exist.', $messages['id'][0]);
+    }
 }
